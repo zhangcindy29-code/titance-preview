@@ -393,7 +393,7 @@ const T={
  "mail.note":{zh:"主题中带案件号的来信以精确匹配归档，不作推测；其余由系统给出建议，须经办人核对后确认。每一次归档都写入不可修改的审计日志。",
    en:"Correspondence carrying a matter number in the subject line is filed on an exact match, never a guess. Everything else is suggested and must be verified by the fee earner. Every filing writes an immutable audit entry."},
  "mail.matched":{zh:"案件号命中",en:"Matter no. matched"},
- "mail.sugg":{zh:"建议",en:"Suggested"},
+ "mail.sugg":{zh:"待核对",en:"To verify"},
  "mail.att":{zh:"附件",en:"attachments"},
  "mail.dest":{zh:"拟归入案件（确认前请核对）",en:"Proposed destination matter — verify before committing"},
  "mail.ref":{zh:"案件引用",en:"Matter reference"},
@@ -514,31 +514,37 @@ const MT=[
 ];
 let Q=[
  {id:1,from:"InfoTrack",addr:"noreply@infotrack.com.au",tm:"13:07",exact:true,m:"260412",
+  wy:{zh:"主题中检出案件号 260412",en:"Matter number 260412 found in the subject line"},
   sj:{zh:"Matter 260412 — 个人风险筛查已完成",en:"Matter 260412 — Individual Risk Profile Search complete"},
   bd:{zh:"您的查询订单已更新。\n\n订单编号：8829104\n查询类型：Dow Jones 个人风险画像（制裁 / 政治人物 / 不利媒体）\n结果：无命中\n\n本结果已按案件号自动回传。",
       en:"Your order has been updated.\n\nOrder reference: 8829104\nSearch type: Dow Jones Individual Risk Profile (sanctions / PEP / adverse media)\nResult: No match found\n\nReturned automatically against the matter number."},
   at:[["PDF","Risk_Profile_260412.pdf","214 KB"]]},
- {id:2,from:"Sarah Chen",addr:"s.chen@example.com",tm:"12:41",exact:false,cf:91,m:"260412",
+ {id:2,from:"Sarah Chen",addr:"s.chen@example.com",tm:"12:41",exact:false,m:"260412",
+  wy:{zh:"发件人为本案买方，正文提及标的地址",en:"Sender is the purchaser on this matter; property address appears in the body"},
   sj:{zh:"Re: 买卖合同 — 身份证件已上传",en:"Re: Contract of sale — ID documents attached"},
   bd:{zh:"Ken 您好：\n\n附上我已签署的买卖合同对应联，以及澳洲护照与新州驾照的核证副本，供 ARNECC 身份核验使用。\n\n烦请确认收讫。另外，缴付 10% 定金的信托账户资料，可否在冷静期届满前告知？\n\n此致\nSarah Chen\n手机：+61 412 889 014",
       en:"Dear Ken,\n\nPlease find attached the signed counterpart of the Contract of Sale, along with certified copies of my Australian passport and NSW driver licence for the ARNECC Verification of Identity.\n\nCould you please confirm receipt, and let me know the account details for lodging the 10% deposit before the cooling-off period expires?\n\nKind regards,\nSarah Chen\nMobile: +61 412 889 014"},
   at:[["PDF","Passport_S_Chen.pdf","1.8 MB"],["JPG","Drivers_licence.jpg","920 KB"]]},
  {id:3,from:"PEXA",addr:"noreply@pexa.com.au",tm:"11:58",exact:true,m:"260411",
+  wy:{zh:"主题中检出案件号 260411",en:"Matter number 260411 found in the subject line"},
   sj:{zh:"Matter 260411 | Workspace 4021887 — 交割日期提案",en:"Matter 260411 | Workspace 4021887 — Settlement date proposed"},
   bd:{zh:"本工作空间已收到交割日期提案。\n\n提案日期：2026 年 9 月 26 日 14:00 AEST\n状态：等待您接受",
       en:"A settlement date has been proposed for this workspace.\n\nProposed: 26 September 2026, 14:00 AEST\nStatus: Awaiting your acceptance"},
   at:[]},
- {id:4,from:"Michael Trent",addr:"m.trent@example.com",tm:"10:22",exact:false,cf:88,m:"260411",
+ {id:4,from:"Michael Trent",addr:"m.trent@example.com",tm:"10:22",exact:false,m:"260411",
+  wy:{zh:"发件人为本案卖方，主题提及标的地址",en:"Sender is the vendor on this matter; property address appears in the subject"},
   sj:{zh:"Re: 14 Nelson Road — 授权书已签署",en:"Re: 14 Nelson Road — signed authority attached"},
   bd:{zh:"Ken 您好：\n\n授权书已按要求签署并扫描附上。交割前若还需要什么，请随时告知。\n\nMichael",
       en:"Hi Ken,\n\nSigned and scanned as requested. Let me know if you need anything else from me before settlement.\n\nMichael"},
   at:[["PDF","Authority_signed.pdf","486 KB"]]},
- {id:5,from:"Sydney Water",addr:"noreply@sydneywater.com.au",tm:"09:35",exact:false,cf:74,m:"260408",
+ {id:5,from:"Sydney Water",addr:"noreply@sydneywater.com.au",tm:"09:35",exact:false,m:"260408",
+  wy:{zh:"仅凭正文中的物业地址匹配",en:"Matched on the property address in the body only"},
   sj:{zh:"建筑图则证明 — 订单 8829-104-B",en:"Building Plan Certificate — Order 8829-104-B"},
   bd:{zh:"您申请的建筑图则证明已可下载。\n\n物业：7 Kingsford Street, Epping NSW 2121",
       en:"Your Building Plan Certificate is ready for download.\n\nProperty: 7 Kingsford Street, Epping NSW 2121"},
   at:[["PDF","Building_Plan_Certificate.pdf","1.1 MB"]]},
- {id:6,from:"Ming-Yuan Zhang",addr:"my.zhang@example.com",tm:"09:04",exact:false,cf:95,m:"260406",
+ {id:6,from:"Ming-Yuan Zhang",addr:"my.zhang@example.com",tm:"09:04",exact:false,m:"260406",
+  wy:{zh:"发件人为本案买方",en:"Sender is the purchaser on this matter"},
   sj:{zh:"关于交割日的几个问题",en:"Question about settlement day"},
   bd:{zh:"Ken 律师您好：\n\n想确认交割当天我需要准备些什么？另外尾款是不是要提前一天转过去？\n\n张明远",
       en:"Dear Ken,\n\nI'd like to confirm what I need to prepare on settlement day. Also, should the balance be transferred the day before?\n\nMing-Yuan Zhang"},
@@ -781,7 +787,7 @@ function renderQ(){
   $("#qlist").innerHTML=Q.map(m=>`<button class="qi" data-id="${m.id}" aria-selected="${m.id===sel}">
     <span class="r1"><span class="fr">${m.from}</span><span class="tm">${m.tm}</span></span>
     <span class="sj">${L(m.sj)}</span>
-    <span class="cs">${m.exact?chip("c-ok",t("mail.matched"),true):chip("c-w",t("mail.sugg")+" "+m.cf+"%",true)}
+    <span class="cs">${m.exact?chip("c-ok",t("mail.matched"),true):chip("c-w",t("mail.sugg"),true)}
     ${m.at.length?chip("c-n",m.at.length+" "+t("mail.att")):""}</span></button>`).join("");
   $("#qlist").querySelectorAll(".qi").forEach(b=>b.addEventListener("click",()=>{sel=+b.dataset.id;renderQ();}));
   renderD();
@@ -799,7 +805,7 @@ function renderD(){
       ${chip("c-ok",t("mail.avok"),true)}</div>`:""}
     <div class="dest">
       <div class="desth"><span class="caps">${t("mail.dest")}</span>
-        <span class="mt">${m.exact?"EXACT MATCH":"AI MATCH "+m.cf+"%"}</span></div>
+        <span class="mt">${m.exact?(LG==="zh"?"精确匹配":"EXACT MATCH"):(LG==="zh"?"待核对":"TO VERIFY")}</span></div>
       <div class="destb">
         <div class="lft"><span class="caps" style="color:var(--ink3)">${t("mail.ref")}</span>
           <div class="no">${mt[0]}</div><div class="cl">${mt[1]}</div>
@@ -809,10 +815,7 @@ function renderD(){
           <div class="refs">${(REF[m.m]||[]).map(r=>chip("c-n mo",r)).join("")}</div></div>
       </div>
       <div class="why">
-        <span><b>${t("mail.rat")}</b>${m.exact
-          ?(LG==="zh"?"主题中检出案件号 "+mt[0]+"，精确匹配，未使用推测":"Matter number "+mt[0]+" found in subject line — exact match, no inference used")
-          :(LG==="zh"?"依据发件人、往来记录与标的地址推荐 — 置信度 "+m.cf+"%":"Suggested from sender, correspondence history and property address — "+m.cf+"% confidence")}</span>
-        <span><b>${t("mail.fold")}</b>${L(FOLD[m.m]||{zh:"—",en:"—"})}</span>
+        <span><b>${t("mail.rat")}</b>${L(m.wy)}</span>
       </div>
     </div>
   </div>
