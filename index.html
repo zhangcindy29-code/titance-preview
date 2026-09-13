@@ -686,7 +686,7 @@ function renderAll(){
 
   $("#abody").innerHTML=AMLR.map(([c,m,r,v,s,d])=>{
    const R=RISK[r];
-   return `<tr><td>${c}</td><td class="n">${m}</td><td>${chip(R.c,R[LG],true)}</td>
+   return `<tr class="ck" data-aml="1"><td>${c}</td><td class="n">${m}</td><td>${chip(R.c,R[LG],true)}</td>
     <td>${v==="ok"?chip("c-ok",t("v.done"),true):chip("c-w",LG==="zh"?"待办":"Outstanding",true)}</td>
     <td>${s==="ok"?chip("c-ok",t("v.nomatch"),true):chip("c-w",LG==="zh"?"待办":"Outstanding",true)}</td>
     <td class="n">${d}</td></tr>`;}).join("");
@@ -775,6 +775,7 @@ function renderDisb(){
 
 let curTab=0;
 function showTab(k){document.querySelectorAll(".pane").forEach(p=>p.hidden=p.dataset.p!==k);}
+function syncTabs(){document.querySelectorAll("#tabs button").forEach((b,i)=>b.setAttribute("aria-selected",i===curTab));}
 
 /* triage */
 let sel=1;
@@ -842,7 +843,8 @@ function go(v){
 }
 document.addEventListener("click",e=>{
   const g=e.target.closest("[data-go]"); if(g){go(g.dataset.go);return;}
-  const r=e.target.closest("tr.ck"); if(r){go("matter");}
+  const r=e.target.closest("tr.ck");
+  if(r){ go("matter"); if(r.dataset.aml){curTab=2;showTab("aml");syncTabs();} }
 });
 $("#back").addEventListener("click",()=>go("matters"));
 $("#lz").addEventListener("click",()=>{LG="zh";paint();});
