@@ -171,6 +171,12 @@ td.idx{font-family:var(--mono);font-size:11px;color:var(--ink3);width:34px}
 .why{border-top:1px solid var(--line2);padding:8px 12px;display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--ink2)}
 .why b{display:block;color:var(--ink3)}
 .bar{border-top:1px solid var(--line2);padding:9px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--alt)}
+.pick{border-top:1px solid var(--line2);max-height:186px;overflow-y:auto;background:var(--panel)}
+.pick button{display:flex;width:100%;text-align:left;gap:10px;align-items:baseline;padding:6px 12px;border-bottom:1px solid var(--line);font-size:12px}
+.pick button:hover{background:var(--hover)}
+.pick .pn0{font-family:var(--mono);font-weight:600;flex:none}
+.pick .pc{font-weight:600}
+.pick .pa{color:var(--ink3);font-size:11px;margin-left:auto;text-align:right}
 .bar .au{font-family:var(--mono);font-size:10px;color:var(--ink3);margin-right:auto}
 
 /* ---- matter ---- */
@@ -313,13 +319,7 @@ tr.miss td span{font-size:11px;color:var(--ink2);display:block}
     <!-- ===== MATTER DETAIL ===== -->
     <section class="view" id="v-matter" hidden>
       <button class="btn" id="back" style="align-self:flex-start">← <span data-t="back"></span></button>
-      <div class="mh">
-        <div class="r1">
-          <span class="mno">MATTER 260412</span><span class="cli">Sarah Chen</span>
-          <span class="c c-n" data-t="d.type"></span><span class="c c-ok"><i></i><span data-t="d.titlereg"></span></span>
-        </div>
-        <div class="adr">Apartment 1204, 88 Walker Street, North Sydney NSW 2060 &nbsp;·&nbsp; <b>Lot 1204 SP 98214</b> &nbsp;·&nbsp; <b>PEXA #4021992</b> &nbsp;·&nbsp; North Sydney Council LGA</div>
-      </div>
+      <div class="mh" id="mhead"></div>
       <div class="stw"><div class="st" id="stages"></div></div>
       <div>
         <div class="tabs" id="tabs"></div>
@@ -394,6 +394,10 @@ const T={
    en:"Correspondence carrying a matter number in the subject line is filed on an exact match, never a guess. Everything else is suggested and must be verified by the fee earner. Every filing writes an immutable audit entry."},
  "mail.matched":{zh:"案件号命中",en:"Matter no. matched"},
  "mail.sugg":{zh:"待核对",en:"To verify"},
+ "mail.manual":{zh:"由经办人指定",en:"Selected by the fee earner"},
+ "mail.defer":{zh:"已移至队列末尾",en:"Moved to the end of the queue"},
+ "mail.packed":{zh:"举证包已生成（演示）",en:"Evidence pack generated (demo)"},
+ "mail.outlook":{zh:"草稿已在 Outlook 中打开（演示）",en:"Draft opened in Outlook (demo)"},
  "mail.att":{zh:"附件",en:"attachments"},
  "mail.dest":{zh:"拟归入案件（确认前请核对）",en:"Proposed destination matter — verify before committing"},
  "mail.ref":{zh:"案件引用",en:"Matter reference"},
@@ -559,54 +563,86 @@ const FOLD={"260412":{zh:"ARNECC 身份核验目录已就绪 · 已关联 AUSTRA
             "260408":{zh:"法定查询目录",en:"Statutory searches folder"},
             "260406":{zh:"交易中期目录",en:"Mid-transaction folder"}};
 
-const STG=[
- [{zh:"收案与身份核验",en:"VOI & AML"},"done",{zh:"28/08 完成",en:"Completed 28/08"}],
- [{zh:"合同磋商",en:"Negotiation"},"done",{zh:"03/09 完成",en:"Completed 03/09"}],
- [{zh:"交换与冷静期",en:"Exchange w/ cooling-off"},"now",{zh:"9月17日届满",en:"Expires 17 Sep"}],
- [{zh:"无条件成立",en:"Unconditional"},"",{zh:"目标 18/09",en:"Target 18/09"}],
- [{zh:"交易中期",en:"Mid-transaction"},"",{zh:"法定查询",en:"Requisitions"}],
- [{zh:"交割前",en:"Pre-settlement"},"",{zh:"款项调整",en:"Adjustments"}],
- [{zh:"交割后",en:"Post-settlement"},"",{zh:"登记过户",en:"Registration"}]
-];
-const DOCS=[
- ["01",{zh:"收案与身份核验",en:"Initial instructions & VOI"},[
-  ["Costs agreement (signed).pdf",{zh:"委托与收费",en:"Retainer / costs"},"26 Aug 2026","420 KB","ok",{zh:"委托已确认",en:"Verified retainer"}],
-  ["Passport_S_Chen.pdf",{zh:"身份证明文件",en:"VOI supporting ID"},"28 Aug 2026","1.8 MB","ok","ARNECC Cat 1"],
-  ["VOI verification record.pdf",{zh:"身份核验记录",en:"Identity attestation"},"28 Aug 2026","610 KB","ok",{zh:"InfoTrack 已核证",en:"InfoTrack certified"}]]],
- ["02",{zh:"合同磋商",en:"Contract negotiation"},[
-  ["Contract of sale draft v2.pdf",{zh:"合同特别条款",en:"Contract special conditions"},"01 Sep 2026","3.4 MB","n",{zh:"律师已批注",en:"Marked up by solicitor"}],
-  ["Section 184 certificate.pdf",{zh:"强制管理证明",en:"Strata scheme certificate"},"03 Sep 2026","890 KB","n",{zh:"业主法团",en:"Strata management"}],
-  ["Planning certificate 10.7.pdf",{zh:"规划与分区查询",en:"Zoning & enquiries"},"29 Aug 2026","1.2 MB","n",{zh:"北悉尼市议会",en:"North Sydney Council"}]]],
- ["03",{zh:"交换与冷静期",en:"Exchange with cooling-off"},[
-  ["Contract of sale (exchanged).pdf",{zh:"已交换合同",en:"Exchanged executed deed"},"10 Sep 2026","4.1 MB","ok",{zh:"对应联已盖印",en:"Counterpart stamped"}],
-  ["Deposit receipt 10%.pdf",{zh:"定金收据",en:"Deposit receipt"},"10 Sep 2026","310 KB","ok","A$142,000.00"],
-  [{zh:"冷静期放弃函（s.66W）",en:"Waiver of cooling-off (s.66W)"},{zh:"法定证书",en:"Statutory certificate"},"","","MISS",{zh:"须由买方律师出具",en:"From purchaser's solicitor"}],
-  [{zh:"贷款正式批准函",en:"Formal loan approval"},{zh:"融资条件",en:"Finance condition"},"","","MISS",{zh:"须为无条件承诺函",en:"Unconditional commitment required"}]]]
-];
-const MAILT=[
- [{zh:"Re: 买卖合同 — 身份证件已上传",en:"Re: Contract of sale — ID documents attached"},"Sarah Chen → Ken So","2",{zh:"交换与冷静期",en:"Exchange w/ cooling-off"},"13/09 12:41"],
- [{zh:"Matter 260412 — 个人风险筛查",en:"Matter 260412 — Individual Risk Profile"},"InfoTrack → Ken So","1",{zh:"收案与身份核验",en:"Initial instructions & VOI"},"13/09 13:07"],
- [{zh:"交换确认 — Apartment 1204, 88 Walker St",en:"Exchange confirmed — Apartment 1204, 88 Walker St"},{zh:"Ken So → 卖方律师",en:"Ken So → Vendor's solicitor"},"1",{zh:"交换与冷静期",en:"Exchange w/ cooling-off"},"10/09 16:20"],
- [{zh:"Re: 合同修改意见（第 8、14 条）",en:"Re: Amendments to cl. 8 and cl. 14"},{zh:"卖方律师 → Ken So",en:"Vendor's solicitor → Ken So"},"1",{zh:"合同磋商",en:"Contract negotiation"},"04/09 11:05"],
- [{zh:"委托书与收费协议",en:"Retainer and costs agreement"},{zh:"Ken So → Sarah Chen",en:"Ken So → Sarah Chen"},"2",{zh:"收案与身份核验",en:"Initial instructions & VOI"},"26/08 09:48"]
-];
-const LOGD=[
- ["2026-08-26 09:48","Ken So",{zh:"创建案件 260412，业务类型：住宅购买",en:"Created matter 260412, type: Residential purchase"}],
- ["2026-08-28 10:12","Carrie Shen",{zh:"完成身份核验，方式：InfoTrack 电子核验（ARNECC Cat 1）",en:"Completed identity verification via InfoTrack (ARNECC Cat 1)"}],
- ["2026-08-28 10:31",{zh:"系统",en:"System"},{zh:"发起 Dow Jones 制裁与政治人物筛查",en:"Initiated Dow Jones sanctions and PEP screening"}],
- ["2026-08-28 10:33",{zh:"系统",en:"System"},{zh:"筛查结果返回：无命中",en:"Screening returned: no match"}],
- ["2026-08-28 14:05","Ken So",{zh:"复核筛查结果并确认无命中",en:"Reviewed screening result and confirmed no match"}],
- ["2026-08-28 14:07","Ken So",{zh:"评定风险等级为「中」，理由：境外资金来源、首次委托",en:"Set risk rating to Medium — overseas source of funds, first instruction"}],
- ["2026-09-02 16:44","Carrie Shen",{zh:"上传资金来源证明：境外汇款凭证及完税证明",en:"Uploaded source of funds evidence: remittance record and tax clearance"}],
- ["2026-09-10 16:22",{zh:"系统",en:"System"},{zh:"案件阶段推进至 03 交换与冷静期",en:"Matter advanced to stage 03, Exchange with cooling-off"}]
-];
-const DISB=[
- ["28/08/2026","InfoTrack",{zh:"产权查册 Title Search",en:"Title search"},"29.70",1,1],
- ["28/08/2026","InfoTrack",{zh:"Dow Jones 个人风险筛查",en:"Dow Jones individual risk profile"},"18.50",1,0],
- ["29/08/2026","InfoTrack",{zh:"规划证明 10.7",en:"Planning certificate 10.7"},"63.00",1,1],
- ["02/09/2026","Sydney Water",{zh:"建筑图则证明",en:"Building plan certificate"},"46.00",0,0],
- ["05/09/2026","NSW LRS",{zh:"业权登记查册",en:"Land registry search"},"16.90",0,0]
-];
+const STGN=[{zh:"收案与身份核验",en:"Initial instructions & VOI"},{zh:"合同磋商",en:"Contract negotiation"},
+ {zh:"交换与冷静期",en:"Exchange with cooling-off"},{zh:"无条件成立",en:"Unconditional"},
+ {zh:"交易中期",en:"Mid-transaction"},{zh:"交割前",en:"Pre-settlement"},{zh:"交割后",en:"Post-settlement"}];
+const STGS=[{zh:"收案与身份核验",en:"VOI & AML"},{zh:"合同磋商",en:"Negotiation"},{zh:"交换与冷静期",en:"Exchange"},
+ {zh:"无条件成立",en:"Unconditional"},{zh:"交易中期",en:"Mid-transaction"},{zh:"交割前",en:"Pre-settlement"},
+ {zh:"交割后",en:"Post-settlement"}];
+const SD=[
+ [[{zh:"委托与收费协议（已签署）",en:"Costs agreement (signed)"},{zh:"委托与收费",en:"Retainer / costs"},"420 KB"],
+  [{zh:"身份证明文件",en:"Identity documents"},{zh:"身份证明",en:"VOI supporting ID"},"1.8 MB"],
+  [{zh:"身份核验记录",en:"VOI verification record"},{zh:"身份核验",en:"Identity attestation"},"610 KB"]],
+ [[{zh:"买卖合同草案 v2",en:"Contract of sale draft v2"},{zh:"合同特别条款",en:"Special conditions"},"3.4 MB"],
+  [{zh:"业主法团证明 Section 184",en:"Section 184 certificate"},{zh:"强制管理",en:"Strata certificate"},"890 KB"],
+  [{zh:"规划证明 10.7",en:"Planning certificate 10.7"},{zh:"规划与分区",en:"Zoning & enquiries"},"1.2 MB"]],
+ [[{zh:"已交换买卖合同",en:"Contract of sale (exchanged)"},{zh:"已交换契据",en:"Exchanged deed"},"4.1 MB"],
+  [{zh:"定金收据 10%",en:"Deposit receipt 10%"},{zh:"定金",en:"Deposit"},"310 KB"],
+  [{zh:"冷静期放弃函（s.66W）",en:"Waiver of cooling-off (s.66W)"},{zh:"法定证书",en:"Statutory certificate"},"—"],
+  [{zh:"贷款正式批准函",en:"Formal loan approval"},{zh:"融资条件",en:"Finance condition"},"—"]],
+ [[{zh:"贷款无条件确认",en:"Unconditional finance confirmation"},{zh:"融资",en:"Finance"},"740 KB"],
+  [{zh:"房屋保险凭证",en:"Certificate of insurance"},{zh:"保险",en:"Insurance"},"280 KB"]],
+ [[{zh:"法定查询答复",en:"Requisitions on title — replies"},{zh:"法定查询",en:"Requisitions"},"1.1 MB"],
+  [{zh:"结算调整表草案",en:"Draft settlement adjustments"},{zh:"款项调整",en:"Adjustments"},"460 KB"]],
+ [[{zh:"结算调整表（定稿）",en:"Settlement adjustments (final)"},{zh:"款项调整",en:"Adjustments"},"520 KB"],
+  [{zh:"尾款划付指示",en:"Balance payment direction"},{zh:"交割",en:"Settlement"},"180 KB"]],
+ [[{zh:"过户登记确认",en:"Registration confirmation"},{zh:"土地登记",en:"Land registry"},"350 KB"],
+  [{zh:"印花税缴纳凭证",en:"Duty payment receipt"},{zh:"印花税",en:"Duty"},"210 KB"],
+  [{zh:"交割报告致客户",en:"Settlement report to client"},{zh:"结案",en:"Completion"},"640 KB"]]];
+const SUPP=[["InfoTrack",{zh:"产权查册",en:"Title search"},"29.70"],["InfoTrack",{zh:"规划证明 10.7",en:"Planning certificate 10.7"},"63.00"],
+ ["InfoTrack",{zh:"个人风险筛查",en:"Individual risk profile"},"18.50"],["Sydney Water",{zh:"建筑图则证明",en:"Building plan certificate"},"46.00"],
+ ["NSW LRS",{zh:"业权登记查册",en:"Land registry search"},"16.90"]];
+const MDATE=["26 Aug 2026","28 Aug 2026","29 Aug 2026","01 Sep 2026","03 Sep 2026","05 Sep 2026","10 Sep 2026"];
+function M(no){return MT.find(x=>x[0]===no);}
+function stageIx(no){const i=STGN.findIndex(x=>x.zh===M(no)[4].zh);return i<0?0:i;}
+function amlOf(no){return AMLR.find(x=>x[1]===no);}
+function genDocs(no){
+  const si=stageIx(no),gap=M(no)[5],out=[];
+  for(let i=0;i<=si;i++){
+    const list=SD[i],rows=[],mf=(i===si&&gap>0)?Math.max(0,list.length-gap):list.length;
+    list.forEach((d,j)=>{const ms=i===si&&j>=mf;
+      rows.push([d[0],d[1],ms?"":MDATE[(i*2+j)%MDATE.length],ms?"—":d[2],ms?"MISS":(j===0?"ok":"n")]);});
+    out.push([String(i+1).padStart(2,"0"),STGN[i],rows]);}
+  return out;}
+function genDisb(no){const n=2+(parseInt(no.slice(-1),10)%4);
+  return SUPP.slice(0,n).map((x,i)=>[MDATE[i%MDATE.length],x[0],x[1],x[2],i<n-1?1:0,i<n-2?1:0]);}
+function genMail(no){const m=M(no);
+  return [[{zh:"Re: 文件已上传",en:"Re: Documents uploaded"},m[1]+" → Ken So","2",m[4],"13/09 12:41"],
+   [{zh:"Matter "+no+" — 查询回执",en:"Matter "+no+" — search result"},"InfoTrack → Ken So","1",STGN[0],"13/09 13:07"],
+   [{zh:"致对方律师函",en:"Letter to the other side"},{zh:"Ken So → 对方律师",en:"Ken So → Other side"},"1",m[4],"10/09 16:20"],
+   [{zh:"委托书与收费协议",en:"Retainer and costs agreement"},{zh:"Ken So → "+m[1],en:"Ken So → "+m[1]},"2",STGN[0],"26/08 09:48"]];}
+function genLog(no){const a=amlOf(no),m=M(no),sys={zh:"系统",en:"System"},o=[];
+  o.push(["2026-08-26 09:48","Ken So",{zh:"创建案件 "+no+"，业务类型："+m[2].zh,en:"Created matter "+no+", type: "+m[2].en}]);
+  o.push(a[3]==="ok"?["2026-08-28 10:12","Carrie Shen",{zh:"完成身份核验（InfoTrack 电子核验）",en:"Completed identity verification via InfoTrack"}]
+                    :["2026-08-28 10:12",sys,{zh:"身份核验链接已发送，客户尚未完成",en:"VOI link sent — client has not completed"}]);
+  o.push(["2026-08-28 10:31",sys,{zh:"发起制裁与政治人物筛查（Dow Jones）",en:"Initiated Dow Jones sanctions and PEP screening"}]);
+  if(a[4]==="ok"){o.push(["2026-08-28 10:33",sys,{zh:"筛查结果返回：无命中",en:"Screening returned: no match"}]);
+    o.push(["2026-08-28 14:05","Ken So",{zh:"复核筛查结果并确认无命中",en:"Reviewed and confirmed no match"}]);}
+  else o.push(["2026-08-28 10:33",sys,{zh:"筛查待发起 — 尚缺当事人出生日期",en:"Screening pending — date of birth outstanding"}]);
+  o.push(["2026-08-28 14:07","Ken So",{zh:"评定风险等级为「"+RISK[a[2]].zh+"」",en:"Set risk rating to "+RISK[a[2]].en}]);
+  o.push(["2026-09-10 16:22",sys,{zh:"案件阶段推进至 "+m[4].zh,en:"Matter advanced to "+m[4].en}]);
+  return o;}
+let CUR="260412";
+function openMatter(no,tab){CUR=no;if(tab!=null)curTab=tab;renderMatter();go("matter");
+  showTab(["docs","mail","aml","disb"][curTab]);syncTabs();}
+function renderMatter(){
+  const m=M(CUR),si=stageIx(CUR),gap=m[5];
+  $("#mhead").innerHTML=`<div class="r1"><span class="mno">MATTER ${m[0]}</span><span class="cli">${m[1]}</span>
+    <span class="c c-n">${L(m[2])}</span>
+    ${gap?chip("c-c",(LG==="zh"?"缺 ":"Missing ")+gap,true):chip("c-ok",LG==="zh"?"文件齐备":"Complete",true)}</div>
+    <div class="adr">${m[3]}${(REF[CUR]||[]).length?" &nbsp;·&nbsp; <b>"+REF[CUR].join("</b> &nbsp;·&nbsp; <b>")+"</b>":""}</div>`;
+  $("#stages").innerHTML=STGS.map((nm,i)=>{const st=i<si?"done":(i===si?"now":"");
+    const sub=i<si?{zh:"已完成",en:"Completed"}:(i===si?{zh:"进行中",en:"Current"}:{zh:"待进行",en:"Upcoming"});
+    return `<div class="sti"${st?` data-s="${st}"`:""}><span class="sn">0${i+1}</span>
+      <span class="stt">${L(nm)}</span><span class="ss">${L(sub)}</span></div>`;}).join("");
+  const unb=genDisb(CUR).filter(d=>!d[4]).length;
+  $("#tabs").innerHTML=[["tab.docs",gap?chip("c-c",LG==="zh"?"缺 "+gap:gap+" missing"):""],
+    ["tab.mail",chip("c-n",String(genMail(CUR).length))],["tab.aml",chip("c-ok",t("b.ready"))],
+    ["tab.disb",unb?chip("c-w",LG==="zh"?"未转嫁 "+unb:unb+" unbilled"):""]]
+   .map(([lb,bd],i)=>`<button data-tab="${["docs","mail","aml","disb"][i]}" aria-selected="${i===curTab}">${t(lb)}${bd}</button>`).join("");
+  document.querySelectorAll("#tabs button").forEach((b,i)=>b.addEventListener("click",()=>{curTab=i;showTab(b.dataset.tab);syncTabs();}));
+  renderDocs();renderMailTab();renderAmlTab();renderDisb();}
+
 const AMLR=[
  ["Sarah Chen","260412","med","ok","ok","28/08/2027"],
  ["Wei-Min Li & Ya-Qin Zhou","260410","high","pend","pend","—"],
@@ -679,94 +715,82 @@ function renderAll(){
       <td>${chip(cc,L(st),true)}</td></tr>`;}).join("");
 
   $("#mbody").innerHTML=MT.map(([no,cl,ty,ad,sg,gp,fe])=>
-   `<tr class="ck" data-m="${no}"><td class="n">${no}</td><td>${cl}</td>
+   `<tr class="ck" data-no="${no}"><td class="n">${no}</td><td>${cl}</td>
     <td>${chip("c-n",L(ty))}</td><td>${ad}</td><td>${L(sg)}</td>
     <td>${gp?chip("c-c",(LG==="zh"?"缺 ":"Missing ")+gp,true):chip("c-ok",LG==="zh"?"齐备":"Complete",true)}</td>
     <td class="n">${fe}</td></tr>`).join("");
 
   $("#abody").innerHTML=AMLR.map(([c,m,r,v,s,d])=>{
    const R=RISK[r];
-   return `<tr class="ck" data-aml="1"><td>${c}</td><td class="n">${m}</td><td>${chip(R.c,R[LG],true)}</td>
+   return `<tr class="ck" data-aml="1" data-no="${m}"><td>${c}</td><td class="n">${m}</td><td>${chip(R.c,R[LG],true)}</td>
     <td>${v==="ok"?chip("c-ok",t("v.done"),true):chip("c-w",LG==="zh"?"待办":"Outstanding",true)}</td>
     <td>${s==="ok"?chip("c-ok",t("v.nomatch"),true):chip("c-w",LG==="zh"?"待办":"Outstanding",true)}</td>
     <td class="n">${d}</td></tr>`;}).join("");
 
-  $("#stages").innerHTML=STG.map(([nm,st,sb],i)=>
-   `<div class="sti"${st?` data-s="${st}"`:""}><span class="sn">0${i+1}</span>
-    <span class="stt">${L(nm)}</span><span class="ss">${L(sb)}</span></div>`).join("");
 
-  $("#tabs").innerHTML=[["docs","tab.docs",chip("c-c",t("b.missing"),false)],
-    ["mail","tab.mail",chip("c-n","14")],["aml","tab.aml",chip("c-ok",t("b.ready"))],
-    ["disb","tab.disb",chip("c-w",t("b.unbilled"))]]
-   .map(([k,lb,bd],i)=>`<button data-tab="${k}" aria-selected="${i===curTab}">${t(lb)}${bd}</button>`).join("");
-  document.querySelectorAll("#tabs button").forEach((b,i)=>b.addEventListener("click",()=>{curTab=i;showTab(b.dataset.tab);}));
-
-  renderDocs(); renderMailTab(); renderAmlTab(); renderDisb(); renderQ();
+  renderMatter(); renderQ();
 }
 function renderDocs(){
-  const rows=DOCS.map(([n,nm,list])=>
-   `<tr class="grp"><td colspan="6">${n} · ${L(nm)}</td></tr>`+
-   list.map(([f,cat,dt,sz,st,vs])=>{
-    if(st==="MISS") return `<tr class="miss"><td class="idx">!</td>
-      <td><b>${L(f)}</b><span>${L(vs)}</span></td><td style="color:var(--crit)">${L(cat)}</td>
-      <td class="n" style="color:var(--crit)">${t("reqby")}</td><td class="n">—</td>
-      <td>${chip("c-c",t("notrecv"))}</td></tr>`;
-    return `<tr><td class="idx"></td><td>${f}</td><td>${L(cat)}</td>
-      <td class="n">${dt}</td><td class="n">${sz}</td>
-      <td>${st==="ok"?chip("c-ok",L(vs),true):`<span style="color:var(--ink3);font-size:11.5px">${L(vs)}</span>`}</td></tr>`;
-   }).join("")).join("");
-  $('[data-p="docs"]').innerHTML=`
-   <div class="alert">
-     <div class="alh"><h3>${t("al.h")}</h3><span class="c c-c mo" style="margin-left:auto">${t("al.left")}</span></div>
-     <div class="alb">
-       <ol>
-        <li><span class="i">1</span><span><b>${t("al.i1")}</b><span>${t("al.i1s")}</span></span></li>
-        <li><span class="i">2</span><span><b>${t("al.i2")}</b><span>${t("al.i2s")}</span></span></li>
-       </ol>
-       <div class="alr"><button class="btn btn-p" id="gen">${t("al.draft")}</button>
-         <span class="law">${t("al.law")}</span></div>
-     </div>
-   </div>
-   <div id="draftbox"></div>
-   <div class="pnh" style="border-top:1px solid var(--line)"><h2>${t("led.h")}</h2>
-     <span class="r">${t("led.s")}</span></div>
+  const gap=M(CUR)[5],si=stageIx(CUR),groups=genDocs(CUR);
+  const rows=groups.map(([n,nm,list])=>`<tr class="grp"><td colspan="6">${n} · ${L(nm)}</td></tr>`+
+   list.map(([f,cat,dt,sz,st])=>st==="MISS"
+    ?`<tr class="miss"><td class="idx">!</td><td><b>${L(f)}</b></td><td style="color:var(--crit)">${L(cat)}</td>
+      <td class="n" style="color:var(--crit)">${t("reqby")}</td><td class="n">—</td><td>${chip("c-c",t("notrecv"))}</td></tr>`
+    :`<tr><td class="idx"></td><td>${L(f)}</td><td>${L(cat)}</td><td class="n">${dt}</td><td class="n">${sz}</td>
+      <td>${st==="ok"?chip("c-ok",LG==="zh"?"已核验":"Verified",true):`<span style="color:var(--ink3);font-size:11.5px">${LG==="zh"?"已归档":"Filed"}</span>`}</td></tr>`
+   ).join("")).join("");
+  const miss=groups.slice(-1)[0][2].filter(r=>r[4]==="MISS");
+  const alert=gap?`<div class="alert"><div class="alh">
+     <h3>${si===2?t("al.h"):(LG==="zh"?gap+" 份文件尚缺 — 阶段："+L(STGN[si]):gap+" documents outstanding — "+L(STGN[si]))}</h3>
+     ${si===2?`<span class="c c-c mo" style="margin-left:auto">${t("al.left")}</span>`:""}</div>
+     <div class="alb"><ol>${miss.map((r,i)=>`<li><span class="i">${i+1}</span><span><b>${L(r[0])}</b><span>${L(r[1])}</span></span></li>`).join("")}</ol>
+     <div class="alr"><button class="btn btn-p" id="gen">${t("al.draft")}</button>
+       ${si===2?`<span class="law">${t("al.law")}</span>`:""}</div></div></div>`:"";
+  $('[data-p="docs"]').innerHTML=`${alert}<div id="draftbox"></div>
+   <div class="pnh" style="border-top:1px solid var(--line)"><h2>${t("led.h")}</h2></div>
    <div class="tw"><table><thead><tr><th style="width:34px">#</th><th>${t("th.doc")}</th><th>${t("th.cat")}</th>
-     <th>${t("th.fdate")}</th><th>${t("th.size")}</th><th>${t("th.vstat")}</th></tr></thead>
-     <tbody>${rows}</tbody></table></div>
-   <div class="foot"><span>${LG==="zh"?"案卷总量":"Vault size"}: 11.52 MB</span>
-     <span>SHA-256 ${LG==="zh"?"已校验":"verified"}</span><span><b>${LG==="zh"?"不可篡改审计轨迹已启用":"Immutable audit trail active"}</b></span></div>`;
-  $("#gen").addEventListener("click",()=>{
-    $("#draftbox").innerHTML=`<div class="draft">
-      <div class="pnh"><h2>${t("al.draft")}</h2>
-        ${chip("c-n",LG==="zh"?"中英双语":"Bilingual")}${chip("c-w",LG==="zh"?"待经办人核校":"Awaiting review",true)}</div>
-      <pre>${L(DRAFT)}</pre>
-      <div class="bar"><span class="au">${t("mail.audit")}</span>
-        <button class="btn">${LG==="zh"?"重新生成":"Regenerate"}</button>
-        <button class="btn btn-p">${LG==="zh"?"在 Outlook 中打开":"Open in Outlook"}</button></div></div>`;
-  });
+     <th>${t("th.fdate")}</th><th>${t("th.size")}</th><th>${t("th.vstat")}</th></tr></thead><tbody>${rows}</tbody></table></div>
+   <div class="foot"><span>SHA-256 ${LG==="zh"?"已校验":"verified"}</span>
+     <span><b>${LG==="zh"?"不可篡改审计轨迹已启用":"Immutable audit trail active"}</b></span></div>`;
+  const g=$("#gen"); if(g) g.addEventListener("click",()=>{
+    $("#draftbox").innerHTML=`<div class="draft"><div class="pnh"><h2>${t("al.draft")}</h2>
+      ${chip("c-n",LG==="zh"?"中英双语":"Bilingual")}${chip("c-w",LG==="zh"?"待经办人核校":"Awaiting review",true)}</div>
+      <pre>${L(DRAFT)}</pre><div class="bar"><span class="au">${t("mail.audit")}</span>
+      <button class="btn" data-act="regen">${LG==="zh"?"重新生成":"Regenerate"}</button>
+      <button class="btn btn-p" data-act="outlook">${LG==="zh"?"在 Outlook 中打开":"Open in Outlook"}</button></div></div>`;});
 }
 function renderMailTab(){
   $('[data-p="mail"]').innerHTML=`<div class="tw"><table>
    <thead><tr><th>${t("th.subj")}</th><th>${t("th.corr")}</th><th>${t("th.atts")}</th><th>${t("th.filedto")}</th><th>${t("th.when")}</th></tr></thead>
-   <tbody>${MAILT.map(([s,c,a,st,w])=>`<tr><td>${L(s)}</td><td>${L(c)}</td><td class="n">${a}</td><td>${L(st)}</td><td class="n">${w}</td></tr>`).join("")}</tbody>
+   <tbody>${genMail(CUR).map(([s,c,a,st,w])=>`<tr><td>${L(s)}</td><td>${L(c)}</td><td class="n">${a}</td><td>${L(st)}</td><td class="n">${w}</td></tr>`).join("")}</tbody>
   </table></div>`;
 }
 function renderAmlTab(){
-  const K=[["k.risk",chip("c-w",t("v.med"),true),"e.risk"],["k.voi",chip("c-ok",t("v.done"),true),"e.voi"],
-   ["k.bo",`<span style="font-size:13px">${t("v.na")}</span>`,"e.bo"],["k.scr",chip("c-ok",t("v.nomatch"),true),"e.scr"],
-   ["k.sof",chip("c-ok",t("v.obt"),true),"e.sof"],["k.next",'<span class="m" style="font-size:13px">28/08/2027</span>',"e.next"]];
+  const a=amlOf(CUR),R=RISK[a[2]],mm=M(CUR),vok=a[3]==="ok",sok=a[4]==="ok",corp=mm[2].en==="Commercial lease";
+  const K0=[["k.risk",chip(R.c,R[LG],true),R.en==="High"?{zh:"涉公司实体或受益所有人待穿透",en:"Corporate entity or beneficial ownership outstanding"}:{zh:"境外资金来源 · 首次委托",en:"Overseas source of funds · first instruction"}],
+   ["k.voi",vok?chip("c-ok",t("v.done"),true):chip("c-w",LG==="zh"?"待办":"Outstanding",true),
+     vok?{zh:"InfoTrack 电子核验 · 核验人 Carrie Shen",en:"InfoTrack electronic verification · Carrie Shen"}:{zh:"核验链接已发送，客户尚未完成",en:"VOI link sent — not yet completed"}],
+   ["k.bo",`<span style="font-size:13px">${corp?(LG==="zh"?"待穿透":"Outstanding"):t("v.na")}</span>`,
+     corp?{zh:"公司客户 · 须查明受益所有人",en:"Corporate client — beneficial owners to be established"}:{zh:"自然人委托",en:"Individual client"}],
+   ["k.scr",sok?chip("c-ok",t("v.nomatch"),true):chip("c-w",LG==="zh"?"待办":"Outstanding",true),
+     sok?{zh:"Dow Jones · 复核人 Ken So",en:"Dow Jones · reviewed by Ken So"}:{zh:"尚缺当事人出生日期，无法发起",en:"Date of birth outstanding"}],
+   ["k.sof",vok?chip("c-ok",t("v.obt"),true):chip("c-w",LG==="zh"?"待办":"Outstanding",true),
+     {zh:"境外汇款凭证及完税证明",en:"Overseas remittance record and tax clearance"}],
+   ["k.next",`<span class="m" style="font-size:13px">${a[5]}</span>`,
+     a[5]==="—"?{zh:"尽职调查完成后设定",en:"Set once due diligence is complete"}:{zh:"到期自动提醒经办人",en:"Fee earner reminded automatically"}]];
   $('[data-p="aml"]').innerHTML=`
-   <dl class="kv">${K.map(([k,v,e])=>`<div><dt class="caps">${t(k)}</dt><dd>${v}</dd><span class="ex">${t(e)}</span></div>`).join("")}</dl>
+   <dl class="kv">${K0.map(([k,v,e])=>`<div><dt class="caps">${t(k)}</dt><dd>${v}</dd><span class="ex">${L(e)}</span></div>`).join("")}</dl>
    <div class="pnh"><h2>${t("aml.log")}</h2><span class="r">${t("aml.logs")}</span>
-     <button class="btn" style="margin-left:8px">${t("aml.pack")}</button></div>
-   <div class="log">${LOGD.map(([ts,ac,ev])=>
+     <button class="btn" data-act="pack" style="margin-left:8px">${t("aml.pack")}</button></div>
+   <div class="log">${genLog(CUR).map(([ts,ac,ev])=>
      `<div class="lg"><span class="ts">${ts}</span><span class="ac">${L(ac)}</span><span class="ev">${L(ev)}</span></div>`).join("")}</div>`;
 }
 function renderDisb(){
-  $('[data-p="disb"]').innerHTML=`<div class="pnh"><h2>${t("disb.h")}</h2><span class="r">${t("disb.s")}</span></div>
+  const dz=genDisb(CUR),unb=dz.filter(d=>!d[4]).reduce((x,d)=>x+parseFloat(d[3]),0);
+  $('[data-p="disb"]').innerHTML=`<div class="pnh"><h2>${t("disb.h")}</h2><span class="r">${LG==="zh"?"未转嫁合计":"Unbilled total"} A$${unb.toFixed(2)}</span></div>
    <div class="tw"><table><thead><tr><th>${t("th.date")}</th><th>${t("th.supp")}</th><th>${t("th.desc")}</th>
      <th style="text-align:right">${t("th.amt")}</th><th>${t("th.onch")}</th><th>${t("th.inv")}</th></tr></thead>
-   <tbody>${DISB.map(([d,s,i,a,p,b])=>`<tr><td class="n">${d}</td><td>${s}</td><td>${L(i)}</td>
+   <tbody>${dz.map(([d,s,i,a,p,b])=>`<tr><td class="n">${d}</td><td>${s}</td><td>${L(i)}</td>
      <td class="n" style="text-align:right">A$${a}</td>
      <td>${p?chip("c-ok",LG==="zh"?"已转嫁":"On-charged",true):chip("c-c",LG==="zh"?"未转嫁":"Not on-charged",true)}</td>
      <td>${b?chip("c-n",LG==="zh"?"已开票":"Invoiced"):chip("c-w",LG==="zh"?"待开票":"To invoice",true)}</td></tr>`).join("")}</tbody>
@@ -816,14 +840,21 @@ function renderD(){
           <div class="refs">${(REF[m.m]||[]).map(r=>chip("c-n mo",r)).join("")}</div></div>
       </div>
       <div class="why">
-        <span><b>${t("mail.rat")}</b>${L(m.wy)}</span>
+        <span><b>${t("mail.rat")}</b>${m.manual?t("mail.manual"):L(m.wy)}</span>
       </div>
+      <div class="pick" id="pick" hidden>${MT.map(x=>`<button data-pick="${x[0]}"><span class="pn0">${x[0]}</span><span class="pc">${x[1]}</span><span class="pa">${x[3]}</span></button>`).join("")}</div>
     </div>
   </div>
   <div class="bar"><span class="au">${t("mail.audit")}</span>
-    <button class="btn">${t("mail.skip")}</button>
-    <button class="btn">${t("mail.chg")} <kbd>⌘K</kbd></button>
+    <button class="btn" id="skip">${t("mail.skip")}</button>
+    <button class="btn" id="chg" aria-expanded="false">${t("mail.chg")}</button>
     <button class="btn btn-p" id="ok">${t("mail.file")}${m.at.length?" ("+m.at.length+")":""} <kbd>⏎</kbd></button></div>`;
+  $("#chg").addEventListener("click",()=>{const pk=$("#pick"),op=pk.hidden;pk.hidden=!op;
+    $("#chg").setAttribute("aria-expanded",op);if(op)pk.scrollIntoView({block:"nearest"});});
+  $("#pick").querySelectorAll("[data-pick]").forEach(b=>b.addEventListener("click",()=>{
+    m.m=b.dataset.pick;m.manual=true;m.exact=false;renderQ();}));
+  $("#skip").addEventListener("click",()=>{
+    Q=Q.filter(x=>x.id!==m.id).concat([m]);sel=Q[0].id;renderQ();toast(t("mail.defer"));});
   $("#ok").addEventListener("click",()=>{
     Q=Q.filter(x=>x.id!==m.id); renderQ();
     toast(t("mail.filed")+" "+mt[0]+" · "+mt[1]);
@@ -842,9 +873,15 @@ function go(v){
   window.scrollTo(0,0);
 }
 document.addEventListener("click",e=>{
+  const ac=e.target.closest("[data-act]");
+  if(ac){const k=ac.dataset.act;
+    if(k==="pack")toast(t("mail.packed"));
+    if(k==="outlook")toast(t("mail.outlook"));
+    if(k==="regen")toast(LG==="zh"?"草稿已重新生成（演示）":"Draft regenerated (demo)");
+    return;}
   const g=e.target.closest("[data-go]"); if(g){go(g.dataset.go);return;}
   const r=e.target.closest("tr.ck");
-  if(r){ go("matter"); if(r.dataset.aml){curTab=2;showTab("aml");syncTabs();} }
+  if(r){ openMatter(r.dataset.no, r.dataset.aml?2:0); }
 });
 $("#back").addEventListener("click",()=>go("matters"));
 $("#lz").addEventListener("click",()=>{LG="zh";paint();});
