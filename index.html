@@ -1,0 +1,848 @@
+<title>Titance Legal 案件与合规平台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --canvas:#F8FAFC; --panel:#FFFFFF; --alt:#FAFBFD; --hover:#F1F5F9; --sel:#E8EEF7;
+  --line:#E2E8F0; --line2:#CBD5E1;
+  --ink:#0F172A; --ink2:#475569; --ink3:#64748B;
+  --pri:#162B45; --pri-ink:#FFFFFF; --pri-edge:#0F1E31; --pri-tint:#EEF2F8;
+  --ok:#0F766E; --ok-bg:#EFFBF7; --ok-edge:#0F766E;
+  --warn:#B45309; --warn-bg:#FFFBEB; --warn-edge:#D97706;
+  --crit:#BE123C; --crit-bg:#FFF1F2; --crit-edge:#BE123C;
+  --sans:"IBM Plex Sans","Inter",-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --body:"Inter","IBM Plex Sans",-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --canvas:#0A1120; --panel:#101A2B; --alt:#0D1626; --hover:#16233A; --sel:#1B2B45;
+  --line:#1E2B41; --line2:#2E3F5B;
+  --ink:#E3E9F2; --ink2:#93A2B8; --ink3:#7A8AA3;
+  --pri:#3D5F91; --pri-ink:#F2F7FE; --pri-edge:#4E74AA; --pri-tint:#15243A;
+  --ok:#4FBFA8; --ok-bg:#0D2220; --ok-edge:#2C7F72;
+  --warn:#D9A04A; --warn-bg:#241C0C; --warn-edge:#8A6A2C;
+  --crit:#E8778C; --crit-bg:#2A1219; --crit-edge:#8E3B4C;
+}}
+:root[data-theme="dark"]{
+  --canvas:#0A1120; --panel:#101A2B; --alt:#0D1626; --hover:#16233A; --sel:#1B2B45;
+  --line:#1E2B41; --line2:#2E3F5B;
+  --ink:#E3E9F2; --ink2:#93A2B8; --ink3:#7A8AA3;
+  --pri:#3D5F91; --pri-ink:#F2F7FE; --pri-edge:#4E74AA; --pri-tint:#15243A;
+  --ok:#4FBFA8; --ok-bg:#0D2220; --ok-edge:#2C7F72;
+  --warn:#D9A04A; --warn-bg:#241C0C; --warn-edge:#8A6A2C;
+  --crit:#E8778C; --crit-bg:#2A1219; --crit-edge:#8E3B4C;
+}
+
+*{box-sizing:border-box}
+body{background:var(--canvas);color:var(--ink);font-family:var(--body);font-size:13px;line-height:1.55;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;border-radius:0}
+:focus-visible{outline:2px solid var(--pri-edge);outline-offset:1px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.m{font-family:var(--mono);font-variant-numeric:tabular-nums lining-nums}
+h1,h2,h3{font-family:var(--sans);margin:0}
+.caps{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+
+/* ---- shell ---- */
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+@media(max-width:820px){.app{grid-template-columns:1fr}}
+.side{background:var(--panel);border-right:1px solid var(--line2);display:flex;flex-direction:column}
+.logo{padding:11px 14px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:1px}
+.logo b{font-family:var(--sans);font-size:14px;font-weight:700;letter-spacing:.02em}
+.logo span{font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);font-family:var(--sans);font-weight:600}
+.navsec{padding:14px 14px 5px;color:var(--ink3)}
+.nav{display:flex;flex-direction:column}
+.nav button{display:flex;align-items:center;gap:9px;width:100%;text-align:left;padding:7px 14px;font-size:12.5px;color:var(--ink2);border-left:3px solid transparent}
+.nav button:hover{background:var(--hover);color:var(--ink)}
+.nav button[aria-current="true"]{background:var(--pri);color:var(--pri-ink);border-left-color:var(--pri-edge);font-weight:600}
+.nav .bdg{margin-left:auto;font-family:var(--mono);font-size:10px;font-weight:600;padding:1px 5px;border:1px solid var(--line2);color:var(--ink2);min-width:19px;text-align:center}
+.nav button[aria-current="true"] .bdg{border-color:rgba(255,255,255,.35);color:var(--pri-ink)}
+.nav .bdg.c{background:var(--crit-bg);border-color:var(--crit-edge);color:var(--crit)}
+.sysbar{margin-top:auto;border-top:1px solid var(--line);padding:9px 14px;display:flex;flex-direction:column;gap:4px;font-family:var(--mono);font-size:10px;color:var(--ink3)}
+.sysbar i{font-style:normal;color:var(--ok)}
+
+.main{min-width:0;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:12px;padding:8px 16px;border-bottom:1px solid var(--line2);background:var(--panel);flex-wrap:wrap}
+.search{flex:1;min-width:180px;max-width:430px;display:flex;align-items:center;gap:7px;border:1px solid var(--line2);padding:4px 8px;color:var(--ink3);font-size:12px;background:var(--canvas)}
+.search kbd{margin-left:auto;font-family:var(--mono);font-size:9.5px;border:1px solid var(--line2);padding:0 3px}
+.clock{font-family:var(--mono);font-size:11px;color:var(--ink2);display:flex;align-items:center;gap:6px}
+.dotok{width:6px;height:6px;background:var(--ok);flex:none}
+.lang{margin-left:auto;display:flex;border:1px solid var(--line2)}
+.lang button{padding:3px 10px;font-size:11.5px;font-family:var(--sans);font-weight:600;color:var(--ink3)}
+.lang button[aria-pressed="true"]{background:var(--pri);color:var(--pri-ink)}
+.me{display:flex;align-items:center;gap:7px;padding-left:12px;border-left:1px solid var(--line)}
+.me .av{width:24px;height:24px;background:var(--pri);color:var(--pri-ink);display:grid;place-items:center;font-family:var(--mono);font-size:10px;font-weight:600}
+.me .nm{font-size:12px;font-weight:600;line-height:1.2}
+.me .no{font-family:var(--mono);font-size:9.5px;color:var(--ink3)}
+
+.view{padding:16px;display:flex;flex-direction:column;gap:14px}
+.view[hidden]{display:none}
+.ph{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.ph h1{font-size:22px;font-weight:600;letter-spacing:-.02em}
+.ph .tag{border:1px solid var(--line2);padding:1px 7px;color:var(--ink2);font-size:10px}
+.ph .sub{flex-basis:100%;font-size:12px;color:var(--ink2)}
+.ph .acts{margin-left:auto;display:flex;gap:7px}
+
+.btn{border:1px solid var(--line2);background:var(--panel);padding:4px 10px;font-size:12px;color:var(--ink);display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:var(--hover)}
+.btn-p{background:var(--pri);color:var(--pri-ink);border-color:var(--pri-edge)}
+.btn-p:hover{background:var(--pri);opacity:.9}
+.btn kbd{font-family:var(--mono);font-size:9.5px;border:1px solid currentColor;opacity:.5;padding:0 3px}
+
+/* ---- tiles ---- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.tile{border:1px solid var(--line2);background:var(--panel);padding:10px 12px;display:flex;flex-direction:column;gap:5px;text-align:left;border-top-width:2px}
+.tile:hover{background:var(--hover)}
+.tile .th{display:flex;align-items:center;gap:6px}
+.tile .th .caps{color:var(--ink3)}
+.tile .n{font-family:var(--mono);font-size:27px;font-weight:600;line-height:1.05;letter-spacing:-.03em}
+.tile .l{font-size:12px;color:var(--ink2)}
+.tile .f{border-top:1px solid var(--line);padding-top:5px;font-size:10.5px;color:var(--ink3);display:flex;gap:5px;align-items:center}
+.tile.q{border-top-color:var(--pri)}
+.tile.c{border-top-color:var(--crit)} .tile.c .n,.tile.c .th .caps{color:var(--crit)}
+.tile.w{border-top-color:var(--warn)} .tile.w .n{color:var(--warn)}
+.tile.o{border-top-color:var(--ok)} .tile.o .n{color:var(--ok)}
+
+/* ---- panel + table ---- */
+.pn{border:1px solid var(--line2);background:var(--panel)}
+.pnh{display:flex;align-items:center;gap:9px;padding:7px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.pnh h2{font-size:13px;font-weight:600}
+.pnh .r{margin-left:auto;display:flex;gap:7px;align-items:center;font-size:11px;color:var(--ink3)}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:720px}
+th{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);text-align:left;padding:6px 12px;border-bottom:1px solid var(--line2);white-space:nowrap;background:var(--alt)}
+td{padding:6px 12px;border-bottom:1px solid var(--line);font-size:12.5px;vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tr.ck{cursor:pointer} tr.ck:hover td{background:var(--hover)}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td.idx{font-family:var(--mono);font-size:11px;color:var(--ink3);width:34px}
+
+/* ---- chips ---- */
+.c{display:inline-flex;align-items:center;gap:4px;height:19px;padding:0 6px;font-size:10.5px;font-weight:600;border:1px solid;white-space:nowrap;font-family:var(--sans)}
+.c i{width:5px;height:5px;background:currentColor;flex:none;font-style:normal}
+.c-ok{background:var(--ok-bg);color:var(--ok);border-color:var(--ok-edge)}
+.c-w{background:var(--warn-bg);color:var(--warn);border-color:var(--warn-edge)}
+.c-c{background:var(--crit-bg);color:var(--crit);border-color:var(--crit-edge)}
+.c-n{background:var(--canvas);color:var(--ink2);border-color:var(--line2)}
+.c.mo{font-family:var(--mono)}
+
+/* ---- triage ---- */
+.tri{display:grid;grid-template-columns:minmax(280px,370px) 1fr;border:1px solid var(--line2);background:var(--panel)}
+@media(max-width:980px){.tri{grid-template-columns:1fr}}
+.ql{border-right:1px solid var(--line2);display:flex;flex-direction:column;min-width:0}
+@media(max-width:980px){.ql{border-right:none;border-bottom:1px solid var(--line2)}}
+.qlh{display:flex;align-items:center;gap:8px;padding:7px 12px;border-bottom:1px solid var(--line);background:var(--alt)}
+.qlh h2{font-size:12.5px;font-weight:600}
+.qlh .cnt{font-family:var(--mono);font-size:10px;font-weight:600;background:var(--pri);color:var(--pri-ink);padding:1px 6px}
+.qi{display:block;width:100%;text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);border-left:3px solid transparent}
+.qi:hover{background:var(--hover)}
+.qi[aria-selected="true"]{background:var(--sel);border-left-color:var(--pri-edge)}
+.qi .r1{display:flex;gap:8px;align-items:baseline}
+.qi .fr{font-weight:600;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qi .tm{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--ink3);flex:none}
+.qi .sj{font-size:12px;color:var(--ink2);margin:2px 0 5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.qi .cs{display:flex;gap:5px;flex-wrap:wrap}
+.qempty{padding:44px 16px;text-align:center;color:var(--ink3);font-size:12.5px}
+
+.qd{display:flex;flex-direction:column;min-width:0}
+.qdh{padding:9px 14px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:5px}
+.qdh h2{font-size:16px;font-weight:600;letter-spacing:-.01em}
+.qdh .meta{font-family:var(--mono);font-size:10.5px;color:var(--ink3);display:flex;gap:14px;flex-wrap:wrap}
+.qdb{padding:12px 14px;display:flex;flex-direction:column;gap:12px;flex:1;min-width:0}
+.msg{border:1px solid var(--line);background:var(--alt);padding:10px 12px;font-size:12.5px;color:var(--ink2);white-space:pre-wrap;line-height:1.7}
+.atts{display:flex;gap:8px;flex-wrap:wrap}
+.att{display:flex;align-items:center;gap:8px;border:1px solid var(--line2);padding:6px 9px;background:var(--panel)}
+.att .ic{font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 4px;border:1px solid var(--line2);color:var(--ink2)}
+.att .fn{font-size:12px;font-weight:500}
+.att .fs{font-family:var(--mono);font-size:10px;color:var(--ink3)}
+
+.dest{border:2px solid var(--pri);background:var(--pri-tint)}
+.desth{display:flex;align-items:center;gap:8px;padding:6px 11px;background:var(--pri);color:var(--pri-ink);flex-wrap:wrap}
+.desth .caps{color:var(--pri-ink);opacity:.9}
+.desth .mt{margin-left:auto;font-family:var(--mono);font-size:10px;font-weight:600;border:1px solid rgba(255,255,255,.4);padding:1px 6px}
+.destb{display:grid;grid-template-columns:minmax(150px,auto) 1fr;gap:14px;padding:12px}
+@media(max-width:620px){.destb{grid-template-columns:1fr}}
+.destb .lft{border-right:1px solid var(--line2);padding-right:14px}
+@media(max-width:620px){.destb .lft{border-right:none;border-bottom:1px solid var(--line2);padding:0 0 10px}}
+.destb .no{font-family:var(--mono);font-size:23px;font-weight:600;letter-spacing:-.02em;line-height:1.1}
+.destb .cl{font-size:13px;font-weight:600;margin-top:2px}
+.refs{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.why{border-top:1px solid var(--line2);padding:8px 12px;display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--ink2)}
+.why b{display:block;color:var(--ink3)}
+.bar{border-top:1px solid var(--line2);padding:9px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--alt)}
+.bar .au{font-family:var(--mono);font-size:10px;color:var(--ink3);margin-right:auto}
+
+/* ---- matter ---- */
+.mh{border:1px solid var(--line2);background:var(--panel);padding:11px 14px;display:flex;flex-direction:column;gap:7px}
+.mh .r1{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.mh .mno{font-family:var(--mono);font-size:12px;border:1px solid var(--line2);padding:2px 7px;color:var(--ink2)}
+.mh .cli{font-size:19px;font-weight:600;letter-spacing:-.01em}
+.mh .adr{font-size:12.5px;color:var(--ink2)}
+.mh .adr b{font-family:var(--mono);font-weight:400;color:var(--ink3)}
+.stw{overflow-x:auto;border:1px solid var(--line2);background:var(--panel)}
+.st{display:flex;min-width:880px}
+.sti{flex:1;padding:7px 11px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:1px}
+.sti:last-child{border-right:none}
+.sti .sn{font-family:var(--mono);font-size:9.5px;color:var(--ink3)}
+.sti .stt{font-size:11.5px;font-weight:600;color:var(--ink2);line-height:1.3}
+.sti .ss{font-family:var(--mono);font-size:9.5px;color:var(--ink3)}
+.sti[data-s="done"]{background:var(--ok-bg)} .sti[data-s="done"] .stt{color:var(--ok)} .sti[data-s="done"] .ss{color:var(--ok)}
+.sti[data-s="now"]{background:var(--pri)} .sti[data-s="now"] .stt,.sti[data-s="now"] .sn{color:var(--pri-ink)}
+.sti[data-s="now"] .ss{color:var(--pri-ink);opacity:.85}
+
+.tabs{display:flex;border:1px solid var(--line2);border-bottom:none;background:var(--panel);flex-wrap:wrap}
+.tabs button{padding:8px 14px;font-size:12.5px;color:var(--ink2);border-right:1px solid var(--line);display:flex;align-items:center;gap:7px}
+.tabs button:hover{background:var(--hover)}
+.tabs button[aria-selected="true"]{background:var(--canvas);color:var(--ink);font-weight:600;box-shadow:inset 0 2px 0 var(--pri)}
+.pane{border:1px solid var(--line2);background:var(--panel);display:flex;flex-direction:column}
+.pane[hidden]{display:none}
+
+.alert{border:1px solid var(--crit-edge);background:var(--crit-bg);margin:12px;display:flex;flex-direction:column}
+.alh{display:flex;align-items:center;gap:9px;padding:8px 12px;border-bottom:1px solid var(--crit-edge);flex-wrap:wrap}
+.alh h3{font-size:13.5px;font-weight:600;color:var(--crit)}
+.alb{display:grid;grid-template-columns:1fr minmax(190px,auto);gap:12px;padding:12px}
+@media(max-width:720px){.alb{grid-template-columns:1fr}}
+.alb ol{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.alb li{display:grid;grid-template-columns:20px 1fr;gap:8px;border:1px solid var(--crit-edge);background:var(--panel);padding:7px 9px}
+.alb li .i{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--crit);border:1px solid var(--crit-edge);width:18px;height:18px;display:grid;place-items:center}
+.alb li b{font-size:12.5px;display:block}
+.alb li span{font-size:11.5px;color:var(--ink2);display:block}
+.alr{display:flex;flex-direction:column;gap:8px;border-left:1px solid var(--crit-edge);padding-left:12px}
+@media(max-width:720px){.alr{border-left:none;padding-left:0}}
+.alr .law{font-family:var(--mono);font-size:10.5px;color:var(--ink2);line-height:1.6}
+
+.grp td{background:var(--alt);font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink2);padding:5px 12px}
+tr.miss td{background:var(--crit-bg)}
+tr.miss td b{color:var(--crit);font-weight:600}
+tr.miss td span{font-size:11px;color:var(--ink2);display:block}
+
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(212px,1fr))}
+.kv>div{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.kv dt{color:var(--ink3)}
+.kv dd{margin:0;font-size:13px}
+.kv .ex{font-size:11px;color:var(--ink3);line-height:1.5}
+.log{display:flex;flex-direction:column}
+.lg{display:grid;grid-template-columns:130px 82px 1fr;gap:10px;padding:5px 12px;border-bottom:1px solid var(--line);font-size:12px;align-items:baseline}
+.lg:last-child{border-bottom:none}
+.lg .ts{font-family:var(--mono);font-size:10.5px;color:var(--ink3)}
+.lg .ac{font-weight:600;font-size:11.5px}
+.lg .ev{color:var(--ink2)}
+@media(max-width:620px){.lg{grid-template-columns:1fr;gap:1px}}
+
+.foot{padding:7px 12px;border-top:1px solid var(--line);background:var(--alt);display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;color:var(--ink3)}
+.foot b{color:var(--ok);font-weight:500}
+.note{font-size:11.5px;color:var(--ink3);line-height:1.65}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--pri);color:var(--pri-ink);border:1px solid var(--pri-edge);padding:7px 14px;font-size:12.5px;z-index:60;display:flex;align-items:center;gap:8px}
+.draft{border:1px solid var(--line2);background:var(--alt);margin:0 12px 12px;display:flex;flex-direction:column}
+.draft pre{margin:0;padding:12px;font-family:var(--body);font-size:12.5px;line-height:1.8;white-space:pre-wrap;color:var(--ink2);max-height:330px;overflow-y:auto}
+</style>
+
+<div class="app">
+  <aside class="side">
+    <div class="logo"><b>TITANCE LEGAL</b><span data-t="firmsub"></span></div>
+    <div class="navsec caps" data-t="navwork"></div>
+    <nav class="nav">
+      <button data-go="today" aria-current="true"><span data-t="nav.today"></span></button>
+      <button data-go="mail"><span data-t="nav.mail"></span><span class="bdg" id="nb">6</span></button>
+      <button data-go="matters"><span data-t="nav.matters"></span><span class="bdg">7</span></button>
+    </nav>
+    <div class="navsec caps" data-t="navcomp"></div>
+    <nav class="nav">
+      <button data-go="aml"><span data-t="nav.aml"></span><span class="bdg c">3</span></button>
+    </nav>
+    <div class="sysbar">
+      <span><i>●</i> AUSTRAC Gateway — <span data-t="sys.live"></span></span>
+      <span><i>●</i> PEXA Network API — <span data-t="sys.sync"></span></span>
+      <span>AWS ap-southeast-2 · Sydney</span>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <div class="search"><span>⌕</span><span data-t="search"></span><kbd>⌘K</kbd></div>
+      <span class="clock"><span class="dotok"></span><span class="m">AEST 14:42</span></span>
+      <div class="lang" role="group">
+        <button id="lz" aria-pressed="true">中文</button><button id="le" aria-pressed="false">EN</button>
+      </div>
+      <div class="me"><span class="av">KS</span><span><span class="nm">Ken So</span><br><span class="no">NSW-LS-49102</span></span></div>
+    </header>
+
+    <!-- ===== TODAY ===== -->
+    <section class="view" id="v-today">
+      <div class="ph">
+        <h1 data-t="today.h"></h1><span class="tag" data-t="today.jur"></span>
+        <div class="acts"><button class="btn btn-p" data-go="mail"><span data-t="today.cta"></span> <kbd>6</kbd></button></div>
+        <p class="sub" data-t="today.sub"></p>
+      </div>
+      <div class="tiles" id="tiles"></div>
+      <div class="pn">
+        <div class="pnh"><h2 data-t="today.att"></h2><span class="c c-n" id="attn">5</span>
+          <span class="r"><span data-t="today.sort"></span></span></div>
+        <div class="tw"><table>
+          <thead><tr><th style="width:34px">#</th><th data-t="th.item"></th><th data-t="th.matter"></th><th data-t="th.due"></th><th data-t="th.status"></th></tr></thead>
+          <tbody id="attbody"></tbody>
+        </table></div>
+        <div class="foot"><span data-t="foot.austrac"></span><span data-t="foot.pexa"></span><span data-t="foot.arnecc"></span></div>
+      </div>
+      <p class="note" data-t="demo"></p>
+    </section>
+
+    <!-- ===== UNFILED MAIL ===== -->
+    <section class="view" id="v-mail" hidden>
+      <div class="ph"><h1 data-t="mail.h"></h1><p class="sub" data-t="mail.sub"></p></div>
+      <div class="tri">
+        <div class="ql">
+          <div class="qlh"><h2 data-t="mail.queue"></h2><span class="cnt" id="qcnt">6</span></div>
+          <div id="qlist"></div>
+        </div>
+        <div class="qd" id="qdetail"></div>
+      </div>
+      <p class="note" data-t="mail.note"></p>
+    </section>
+
+    <!-- ===== MATTERS ===== -->
+    <section class="view" id="v-matters" hidden>
+      <div class="ph"><h1 data-t="matters.h"></h1><p class="sub" data-t="matters.sub"></p></div>
+      <div class="pn"><div class="tw"><table>
+        <thead><tr><th data-t="th.no"></th><th data-t="th.client"></th><th data-t="th.type"></th><th data-t="th.prop"></th><th data-t="th.stage"></th><th data-t="th.docs"></th><th data-t="th.fe"></th></tr></thead>
+        <tbody id="mbody"></tbody>
+      </table></div></div>
+    </section>
+
+    <!-- ===== MATTER DETAIL ===== -->
+    <section class="view" id="v-matter" hidden>
+      <button class="btn" id="back" style="align-self:flex-start">← <span data-t="back"></span></button>
+      <div class="mh">
+        <div class="r1">
+          <span class="mno">MATTER 260412</span><span class="cli">Sarah Chen</span>
+          <span class="c c-n" data-t="d.type"></span><span class="c c-ok"><i></i><span data-t="d.titlereg"></span></span>
+        </div>
+        <div class="adr">Apartment 1204, 88 Walker Street, North Sydney NSW 2060 &nbsp;·&nbsp; <b>Lot 1204 SP 98214</b> &nbsp;·&nbsp; <b>PEXA #4021992</b> &nbsp;·&nbsp; North Sydney Council LGA</div>
+      </div>
+      <div class="stw"><div class="st" id="stages"></div></div>
+      <div>
+        <div class="tabs" id="tabs"></div>
+        <div class="pane" data-p="docs"></div>
+        <div class="pane" data-p="mail" hidden></div>
+        <div class="pane" data-p="aml" hidden></div>
+        <div class="pane" data-p="disb" hidden></div>
+      </div>
+    </section>
+
+    <!-- ===== AML REGISTER ===== -->
+    <section class="view" id="v-aml" hidden>
+      <div class="ph"><h1 data-t="aml.h"></h1><p class="sub" data-t="aml.sub"></p></div>
+      <div class="pn"><div class="tw"><table>
+        <thead><tr><th data-t="th.client"></th><th data-t="th.no"></th><th data-t="th.risk"></th><th data-t="th.voi"></th><th data-t="th.screen"></th><th data-t="th.next"></th></tr></thead>
+        <tbody id="abody"></tbody>
+      </table></div></div>
+      <p class="note" data-t="aml.note"></p>
+    </section>
+  </div>
+</div>
+
+<script>
+/* ============ i18n ============ */
+let LG="zh";
+const T={
+ firmsub:{zh:"悉尼 · 过户与合规",en:"Sydney · Conveyancing & Compliance"},
+ navwork:{zh:"日常作业",en:"Operations"},
+ navcomp:{zh:"合规与审计",en:"Compliance & Audit"},
+ "nav.today":{zh:"今日",en:"Today"},
+ "nav.mail":{zh:"待归档邮件",en:"Unfiled mail"},
+ "nav.matters":{zh:"案件",en:"Matters"},
+ "nav.aml":{zh:"反洗钱登记簿",en:"AML register"},
+ "sys.live":{zh:"已连接",en:"Live"},
+ "sys.sync":{zh:"同步中",en:"Synced"},
+ search:{zh:"搜索案件号、产权引用、当事人…",en:"Search matter no., title ref, client…"},
+ demo:{zh:"本页为演示环境。所列当事人、物业与文件均为虚构示例，非真实客户资料。",
+       en:"Demonstration environment. All clients, properties and documents shown are fictitious examples, not real client data."},
+ back:{zh:"返回案件列表",en:"Back to matters"},
+
+ "today.h":{zh:"今日",en:"Today"},
+ "today.jur":{zh:"新南威尔士州",en:"NSW JURISDICTION"},
+ "today.sub":{zh:"每日事务分派与法定期限 · 2026年9月16日 星期三 · AEST",
+              en:"Daily operational triage & statutory deadlines · Wednesday, 16 September 2026 · AEST"},
+ "today.cta":{zh:"处理待归档邮件",en:"Triage unfiled mail"},
+ "today.att":{zh:"今日须处理",en:"Needs attention today"},
+ "today.sort":{zh:"按法定期限排序",en:"Sorted by statutory deadline"},
+ "th.item":{zh:"事项",en:"Item & statutory requisition"},
+ "th.matter":{zh:"案件 / 当事人",en:"Matter / client"},
+ "th.due":{zh:"期限",en:"Due"},
+ "th.status":{zh:"状态",en:"Status"},
+ "th.no":{zh:"案件号",en:"Matter no."},
+ "th.client":{zh:"当事人",en:"Client"},
+ "th.type":{zh:"类型",en:"Type"},
+ "th.prop":{zh:"物业 / 标的",en:"Property or subject"},
+ "th.stage":{zh:"当前阶段",en:"Current stage"},
+ "th.docs":{zh:"文件",en:"Documents"},
+ "th.fe":{zh:"经办",en:"Fee earner"},
+ "th.risk":{zh:"风险评级",en:"Risk"},
+ "th.voi":{zh:"身份核验",en:"Identity (VOI)"},
+ "th.screen":{zh:"制裁筛查",en:"Screening"},
+ "th.next":{zh:"重新筛查",en:"Next review"},
+ "foot.austrac":{zh:"AUSTRAC 报送网关：06:00 AEST 已同步",en:"AUSTRAC reporting gateway: synced 06:00 AEST"},
+ "foot.pexa":{zh:"PEXA 接口：正常",en:"PEXA API: active & ready"},
+ "foot.arnecc":{zh:"ARNECC 身份核验等级：已启用",en:"ARNECC VOI standard: enforced"},
+
+ "mail.h":{zh:"待归档邮件",en:"Unfiled mail"},
+ "mail.sub":{zh:"来信经核对后归入对应案件，附件一并入库",
+             en:"Inbound correspondence verified and filed to its matter, with attachments"},
+ "mail.queue":{zh:"收件队列",en:"Unfiled inbound queue"},
+ "mail.note":{zh:"主题中带案件号的来信以精确匹配归档，不作推测；其余由系统给出建议，须经办人核对后确认。每一次归档都写入不可修改的审计日志。",
+   en:"Correspondence carrying a matter number in the subject line is filed on an exact match, never a guess. Everything else is suggested and must be verified by the fee earner. Every filing writes an immutable audit entry."},
+ "mail.matched":{zh:"案件号命中",en:"Matter no. matched"},
+ "mail.sugg":{zh:"建议",en:"Suggested"},
+ "mail.att":{zh:"附件",en:"attachments"},
+ "mail.dest":{zh:"拟归入案件（确认前请核对）",en:"Proposed destination matter — verify before committing"},
+ "mail.ref":{zh:"案件引用",en:"Matter reference"},
+ "mail.prop":{zh:"标的物业（新州土地登记）",en:"Target property (NSW Land Registry)"},
+ "mail.rat":{zh:"归档依据",en:"Automated rationale"},
+ "mail.fold":{zh:"合规归属",en:"Compliance target"},
+ "mail.file":{zh:"确认归档",en:"File to matter"},
+ "mail.chg":{zh:"改选案件",en:"Change matter"},
+ "mail.skip":{zh:"暂不处理",en:"Skip"},
+ "mail.audit":{zh:"归档动作写入审计日志 · SHA-256",en:"Filing writes audit entry · SHA-256"},
+ "mail.empty":{zh:"队列已清空 — 今日来信均已归档",en:"Queue cleared — all inbound mail filed"},
+ "mail.emptyd":{zh:"无待处理邮件",en:"No mail to review"},
+ "mail.filed":{zh:"已归入",en:"Filed to"},
+ "mail.from":{zh:"发件人",en:"From"},
+ "mail.time":{zh:"时间",en:"Received"},
+ "mail.avok":{zh:"病毒扫描通过",en:"Antivirus passed"},
+
+ "matters.h":{zh:"在办案件",en:"Active matters"},
+ "matters.sub":{zh:"共 7 宗在办",en:"7 active files"},
+ "d.type":{zh:"住宅购买",en:"Residential purchase"},
+ "d.titlereg":{zh:"产权已登记",en:"NSW title registered"},
+ "tab.docs":{zh:"文件",en:"Documents"},
+ "tab.mail":{zh:"邮件",en:"Email"},
+ "tab.aml":{zh:"反洗钱",en:"AML / CDD"},
+ "tab.disb":{zh:"垫付支出",en:"Disbursements"},
+ "b.missing":{zh:"缺 2",en:"2 missing"},
+ "b.ready":{zh:"可举证",en:"Audit ready"},
+ "b.unbilled":{zh:"未转嫁 2",en:"2 unbilled"},
+
+ "al.h":{zh:"两份文件尚缺 — 冷静期于 2026 年 9 月 17 日下午 5 时届满",
+         en:"Two documents outstanding — cooling-off expires 5:00pm, 17 September 2026"},
+ "al.left":{zh:"尚余 48 小时 32 分",en:"48h 32m remaining"},
+ "al.i1":{zh:"冷静期放弃函（s.66W 证书）",en:"Waiver of cooling-off rights (s.66W certificate)"},
+ "al.i1s":{zh:"须由买方持证转让师或执业律师于合同生效前出具",
+           en:"To be issued by the buyer's conveyancer or solicitor before the contract becomes binding"},
+ "al.i2":{zh:"贷款正式无条件批准函",en:"Formal unconditional loan approval letter"},
+ "al.i2s":{zh:"附条件的预批函不为承按人或卖方接受",
+           en:"A conditional pre-approval will not be accepted by the incoming mortgagee or vendor"},
+ "al.law":{zh:"依据《1919 年新南威尔士州产权转让法》第 66W 条之法定冷静期",
+           en:"Statutory cooling-off period under s.66W, Conveyancing Act 1919 (NSW)"},
+ "al.draft":{zh:"生成补件函件",en:"Draft request to client"},
+ "led.h":{zh:"案卷文件登记",en:"Evidentiary file ledger"},
+ "led.s":{zh:"已归档 8 份 · 尚缺 2 份",en:"8 filed · 2 outstanding"},
+ "th.doc":{zh:"文件名",en:"Document"},
+ "th.cat":{zh:"类别",en:"Category"},
+ "th.fdate":{zh:"归档日期",en:"Filed"},
+ "th.size":{zh:"大小",en:"Size"},
+ "th.vstat":{zh:"核验状态",en:"Verification status"},
+ "notrecv":{zh:"尚未收到",en:"Not received"},
+ "reqby":{zh:"应于 17/09 前取得",en:"Required by 17/09"},
+ "th.subj":{zh:"主题",en:"Subject"},
+ "th.corr":{zh:"往来",en:"Correspondence"},
+ "th.atts":{zh:"附件",en:"Att."},
+ "th.filedto":{zh:"归入阶段",en:"Filed to stage"},
+ "th.when":{zh:"时间",en:"Time"},
+ "th.date":{zh:"日期",en:"Date"},
+ "th.supp":{zh:"供应商",en:"Supplier"},
+ "th.desc":{zh:"项目",en:"Description"},
+ "th.amt":{zh:"金额",en:"Amount"},
+ "th.onch":{zh:"转嫁",en:"On-charged"},
+ "th.inv":{zh:"开票",en:"Invoiced"},
+ "disb.h":{zh:"垫付支出台账",en:"Disbursement ledger"},
+ "disb.s":{zh:"未转嫁合计 A$62.90",en:"Unbilled total A$62.90"},
+ "disb.n":{zh:"InfoTrack 等查询按次计费，须逐笔挂于案件项下并向客户转嫁，否则将出现应收未收。",
+           en:"InfoTrack and authority searches are charged per search. Each must be recorded against the matter and on-charged, or the firm absorbs the cost."},
+ "aml.log":{zh:"审计日志",en:"Audit log"},
+ "aml.logs":{zh:"只可追加 · 不可修改或删除",en:"Append-only — cannot be edited or deleted"},
+ "aml.pack":{zh:"导出举证包",en:"Export evidence pack"},
+ "aml.h":{zh:"反洗钱 / 客户尽职调查登记簿",en:"AML / CDD register"},
+ "aml.sub":{zh:"全所客户尽职调查状态一览 · 3 项待办",en:"Firm-wide customer due diligence status · 3 outstanding"},
+ "aml.note":{zh:"合规程序的设计与义务范围属本所执业律师之专业判断；本系统仅负责忠实记录，并使记录随时可供举证。",
+   en:"The design of the compliance programme and the scope of its obligations are matters of professional judgement for the firm's solicitors. This system records faithfully and keeps that record available for evidence at any time."},
+ "k.risk":{zh:"风险评级",en:"Risk rating"},
+ "k.voi":{zh:"身份核验 VOI",en:"Identity verification (VOI)"},
+ "k.bo":{zh:"受益所有人",en:"Beneficial ownership"},
+ "k.scr":{zh:"制裁与政治人物筛查",en:"Sanctions & PEP screening"},
+ "k.sof":{zh:"资金来源",en:"Source of funds"},
+ "k.next":{zh:"重新筛查到期",en:"Next screening due"},
+ "v.med":{zh:"中",en:"Medium"},
+ "v.done":{zh:"已完成",en:"Complete"},
+ "v.na":{zh:"不适用",en:"Not applicable"},
+ "v.nomatch":{zh:"无命中",en:"No match"},
+ "v.obt":{zh:"已取得",en:"Obtained"},
+ "e.risk":{zh:"境外资金来源 · 首次委托",en:"Overseas source of funds · first instruction"},
+ "e.voi":{zh:"InfoTrack 电子核验 · 核验人 Carrie Shen",en:"InfoTrack electronic verification · verified by Carrie Shen"},
+ "e.bo":{zh:"自然人委托",en:"Individual client"},
+ "e.scr":{zh:"Dow Jones · 复核人 Ken So",en:"Dow Jones · reviewed by Ken So"},
+ "e.sof":{zh:"境外汇款凭证及完税证明",en:"Overseas remittance record and tax clearance"},
+ "e.next":{zh:"尚余 349 日",en:"349 days remaining"},
+ "th.actor":{zh:"操作人",en:"Actor"},
+ "th.event":{zh:"事件",en:"Event"}
+};
+const t=k=>(T[k]?T[k][LG]:k);
+const L=o=>typeof o==="string"?o:o[LG];
+
+/* ============ data ============ */
+const TILES=[
+ {k:"q",n:"6",l:{zh:"封邮件待归档",en:"emails to file"},h:{zh:"收件队列",en:"Inbound queue"},f:{zh:"2 封已高置信度匹配",en:"2 high-confidence matches"},go:"mail"},
+ {k:"c",n:"4",l:{zh:"宗案件文件不齐",en:"matters with missing docs"},h:{zh:"紧急事项",en:"Critical requisitions"},f:{zh:"1 宗冷静期 48 小时内届满",en:"1 cooling-off expiring <48h"},go:"matters"},
+ {k:"w",n:"3",l:{zh:"项反洗钱待办",en:"AML items outstanding"},h:{zh:"AUSTRAC 合规",en:"AUSTRAC CTF/AML"},f:{zh:"法定收案核查",en:"Statutory intake checks"},go:"aml"},
+ {k:"o",n:"A$1,284",l:{zh:"垫付支出未转嫁",en:"disbursements unbilled"},h:{zh:"支出台账",en:"Ledger outlays"},f:{zh:"5 笔 · 涉 3 宗案件",en:"5 outlays · 3 active files"},go:"matters"}
+];
+const ATT=[
+ [{zh:"冷静期届满前须取得 s.66W 证书与贷款批准函",en:"Obtain s.66W certificate and loan approval before cooling-off expires"},"260412 Sarah Chen",{zh:"9月17日 17:00",en:"17 Sep 17:00"},"c",{zh:"2 份文件尚缺",en:"2 documents missing"}],
+ [{zh:"确认 PEXA 交割日期提案",en:"Accept PEXA settlement date"},"260411 Michael Trent",{zh:"9月26日 14:00",en:"26 Sep 14:00"},"w",{zh:"待接受",en:"Awaiting acceptance"}],
+ [{zh:"受益所有人尚未穿透确认",en:"Beneficial ownership not yet established"},"260409 Harper & Vale Pty Ltd",{zh:"收案阶段",en:"Intake"},"c",{zh:"反洗钱",en:"AML compliance"}],
+ [{zh:"身份核验尚未完成",en:"Identity verification not complete"},"260410 Wei-Min Li & Ya-Qin Zhou",{zh:"收案阶段",en:"Intake"},"w",{zh:"ARNECC 身份核验",en:"ARNECC VOI"}],
+ [{zh:"2 笔垫付支出尚未转嫁客户",en:"2 disbursements not on-charged"},"260412 Sarah Chen","—","o","A$62.90"]
+];
+const MT=[
+ ["260412","Sarah Chen",{zh:"购买",en:"Purchase"},"Apartment 1204, 88 Walker Street, North Sydney NSW 2060",{zh:"交换与冷静期",en:"Exchange w/ cooling-off"},2,"KS"],
+ ["260411","Michael Trent",{zh:"出售",en:"Sale"},"14 Nelson Road, Lindfield NSW 2070",{zh:"交割前",en:"Pre-settlement"},0,"KS"],
+ ["260410","Wei-Min Li & Ya-Qin Zhou",{zh:"购买",en:"Purchase"},"Apartment 619, 10 Brown Street, Chatswood NSW 2067",{zh:"收案与身份核验",en:"Initial instructions & VOI"},3,"CS"],
+ ["260409","Harper & Vale Pty Ltd",{zh:"商业租约",en:"Commercial lease"},"Shop 3, 210 Victoria Avenue, Chatswood NSW 2067",{zh:"合同磋商",en:"Contract negotiation"},1,"CS"],
+ ["260408","Hai-Tao Wang",{zh:"购买",en:"Purchase"},"7 Kingsford Street, Epping NSW 2121",{zh:"无条件成立",en:"Unconditional"},0,"KS"],
+ ["260407","Eleanor Prosser",{zh:"出售",en:"Sale"},"Unit 2, 45 Boundary Street, Roseville NSW 2069",{zh:"交割后",en:"Post-settlement"},0,"CS"],
+ ["260406","Ming-Yuan Zhang",{zh:"购买",en:"Purchase"},"Apartment 803, 3 Mooltan Street, Macquarie Park NSW 2113",{zh:"交易中期",en:"Mid-transaction"},1,"KS"]
+];
+let Q=[
+ {id:1,from:"InfoTrack",addr:"noreply@infotrack.com.au",tm:"13:07",exact:true,m:"260412",
+  sj:{zh:"Matter 260412 — 个人风险筛查已完成",en:"Matter 260412 — Individual Risk Profile Search complete"},
+  bd:{zh:"您的查询订单已更新。\n\n订单编号：8829104\n查询类型：Dow Jones 个人风险画像（制裁 / 政治人物 / 不利媒体）\n结果：无命中\n\n本结果已按案件号自动回传。",
+      en:"Your order has been updated.\n\nOrder reference: 8829104\nSearch type: Dow Jones Individual Risk Profile (sanctions / PEP / adverse media)\nResult: No match found\n\nReturned automatically against the matter number."},
+  at:[["PDF","Risk_Profile_260412.pdf","214 KB"]]},
+ {id:2,from:"Sarah Chen",addr:"s.chen@example.com",tm:"12:41",exact:false,cf:91,m:"260412",
+  sj:{zh:"Re: 买卖合同 — 身份证件已上传",en:"Re: Contract of sale — ID documents attached"},
+  bd:{zh:"Ken 您好：\n\n附上我已签署的买卖合同对应联，以及澳洲护照与新州驾照的核证副本，供 ARNECC 身份核验使用。\n\n烦请确认收讫。另外，缴付 10% 定金的信托账户资料，可否在冷静期届满前告知？\n\n此致\nSarah Chen\n手机：+61 412 889 014",
+      en:"Dear Ken,\n\nPlease find attached the signed counterpart of the Contract of Sale, along with certified copies of my Australian passport and NSW driver licence for the ARNECC Verification of Identity.\n\nCould you please confirm receipt, and let me know the account details for lodging the 10% deposit before the cooling-off period expires?\n\nKind regards,\nSarah Chen\nMobile: +61 412 889 014"},
+  at:[["PDF","Passport_S_Chen.pdf","1.8 MB"],["JPG","Drivers_licence.jpg","920 KB"]]},
+ {id:3,from:"PEXA",addr:"noreply@pexa.com.au",tm:"11:58",exact:true,m:"260411",
+  sj:{zh:"Matter 260411 | Workspace 4021887 — 交割日期提案",en:"Matter 260411 | Workspace 4021887 — Settlement date proposed"},
+  bd:{zh:"本工作空间已收到交割日期提案。\n\n提案日期：2026 年 9 月 26 日 14:00 AEST\n状态：等待您接受",
+      en:"A settlement date has been proposed for this workspace.\n\nProposed: 26 September 2026, 14:00 AEST\nStatus: Awaiting your acceptance"},
+  at:[]},
+ {id:4,from:"Michael Trent",addr:"m.trent@example.com",tm:"10:22",exact:false,cf:88,m:"260411",
+  sj:{zh:"Re: 14 Nelson Road — 授权书已签署",en:"Re: 14 Nelson Road — signed authority attached"},
+  bd:{zh:"Ken 您好：\n\n授权书已按要求签署并扫描附上。交割前若还需要什么，请随时告知。\n\nMichael",
+      en:"Hi Ken,\n\nSigned and scanned as requested. Let me know if you need anything else from me before settlement.\n\nMichael"},
+  at:[["PDF","Authority_signed.pdf","486 KB"]]},
+ {id:5,from:"Sydney Water",addr:"noreply@sydneywater.com.au",tm:"09:35",exact:false,cf:74,m:"260408",
+  sj:{zh:"建筑图则证明 — 订单 8829-104-B",en:"Building Plan Certificate — Order 8829-104-B"},
+  bd:{zh:"您申请的建筑图则证明已可下载。\n\n物业：7 Kingsford Street, Epping NSW 2121",
+      en:"Your Building Plan Certificate is ready for download.\n\nProperty: 7 Kingsford Street, Epping NSW 2121"},
+  at:[["PDF","Building_Plan_Certificate.pdf","1.1 MB"]]},
+ {id:6,from:"Ming-Yuan Zhang",addr:"my.zhang@example.com",tm:"09:04",exact:false,cf:95,m:"260406",
+  sj:{zh:"关于交割日的几个问题",en:"Question about settlement day"},
+  bd:{zh:"Ken 律师您好：\n\n想确认交割当天我需要准备些什么？另外尾款是不是要提前一天转过去？\n\n张明远",
+      en:"Dear Ken,\n\nI'd like to confirm what I need to prepare on settlement day. Also, should the balance be transferred the day before?\n\nMing-Yuan Zhang"},
+  at:[]}
+];
+const REF={"260412":["Lot 1204 SP 98214","LGA: North Sydney","PEXA W/S #4021992"],
+           "260411":["Lot 7 DP 1029384","LGA: Ku-ring-gai","PEXA W/S #4021887"],
+           "260408":["Lot 22 DP 774159","LGA: Parramatta","PEXA W/S #4022311"],
+           "260406":["Lot 803 SP 84120","LGA: Ryde","PEXA W/S #4020774"]};
+const FOLD={"260412":{zh:"ARNECC 身份核验目录已就绪 · 已关联 AUSTRAC 客户尽职调查档案",en:"ARNECC VOI folder ready · linked to AUSTRAC CDD file"},
+            "260411":{zh:"交割前目录 · PEXA 工作空间已关联",en:"Pre-settlement folder · PEXA workspace linked"},
+            "260408":{zh:"法定查询目录",en:"Statutory searches folder"},
+            "260406":{zh:"交易中期目录",en:"Mid-transaction folder"}};
+
+const STG=[
+ [{zh:"收案与身份核验",en:"VOI & AML"},"done",{zh:"28/08 完成",en:"Completed 28/08"}],
+ [{zh:"合同磋商",en:"Negotiation"},"done",{zh:"03/09 完成",en:"Completed 03/09"}],
+ [{zh:"交换与冷静期",en:"Exchange w/ cooling-off"},"now",{zh:"9月17日届满",en:"Expires 17 Sep"}],
+ [{zh:"无条件成立",en:"Unconditional"},"",{zh:"目标 18/09",en:"Target 18/09"}],
+ [{zh:"交易中期",en:"Mid-transaction"},"",{zh:"法定查询",en:"Requisitions"}],
+ [{zh:"交割前",en:"Pre-settlement"},"",{zh:"款项调整",en:"Adjustments"}],
+ [{zh:"交割后",en:"Post-settlement"},"",{zh:"登记过户",en:"Registration"}]
+];
+const DOCS=[
+ ["01",{zh:"收案与身份核验",en:"Initial instructions & VOI"},[
+  ["Costs agreement (signed).pdf",{zh:"委托与收费",en:"Retainer / costs"},"26 Aug 2026","420 KB","ok",{zh:"委托已确认",en:"Verified retainer"}],
+  ["Passport_S_Chen.pdf",{zh:"身份证明文件",en:"VOI supporting ID"},"28 Aug 2026","1.8 MB","ok","ARNECC Cat 1"],
+  ["VOI verification record.pdf",{zh:"身份核验记录",en:"Identity attestation"},"28 Aug 2026","610 KB","ok",{zh:"InfoTrack 已核证",en:"InfoTrack certified"}]]],
+ ["02",{zh:"合同磋商",en:"Contract negotiation"},[
+  ["Contract of sale draft v2.pdf",{zh:"合同特别条款",en:"Contract special conditions"},"01 Sep 2026","3.4 MB","n",{zh:"律师已批注",en:"Marked up by solicitor"}],
+  ["Section 184 certificate.pdf",{zh:"强制管理证明",en:"Strata scheme certificate"},"03 Sep 2026","890 KB","n",{zh:"业主法团",en:"Strata management"}],
+  ["Planning certificate 10.7.pdf",{zh:"规划与分区查询",en:"Zoning & enquiries"},"29 Aug 2026","1.2 MB","n",{zh:"北悉尼市议会",en:"North Sydney Council"}]]],
+ ["03",{zh:"交换与冷静期",en:"Exchange with cooling-off"},[
+  ["Contract of sale (exchanged).pdf",{zh:"已交换合同",en:"Exchanged executed deed"},"10 Sep 2026","4.1 MB","ok",{zh:"对应联已盖印",en:"Counterpart stamped"}],
+  ["Deposit receipt 10%.pdf",{zh:"定金收据",en:"Deposit receipt"},"10 Sep 2026","310 KB","ok","A$142,000.00"],
+  [{zh:"冷静期放弃函（s.66W）",en:"Waiver of cooling-off (s.66W)"},{zh:"法定证书",en:"Statutory certificate"},"","","MISS",{zh:"须由买方律师出具",en:"From purchaser's solicitor"}],
+  [{zh:"贷款正式批准函",en:"Formal loan approval"},{zh:"融资条件",en:"Finance condition"},"","","MISS",{zh:"须为无条件承诺函",en:"Unconditional commitment required"}]]]
+];
+const MAILT=[
+ [{zh:"Re: 买卖合同 — 身份证件已上传",en:"Re: Contract of sale — ID documents attached"},"Sarah Chen → Ken So","2",{zh:"交换与冷静期",en:"Exchange w/ cooling-off"},"13/09 12:41"],
+ [{zh:"Matter 260412 — 个人风险筛查",en:"Matter 260412 — Individual Risk Profile"},"InfoTrack → Ken So","1",{zh:"收案与身份核验",en:"Initial instructions & VOI"},"13/09 13:07"],
+ [{zh:"交换确认 — Apartment 1204, 88 Walker St",en:"Exchange confirmed — Apartment 1204, 88 Walker St"},{zh:"Ken So → 卖方律师",en:"Ken So → Vendor's solicitor"},"1",{zh:"交换与冷静期",en:"Exchange w/ cooling-off"},"10/09 16:20"],
+ [{zh:"Re: 合同修改意见（第 8、14 条）",en:"Re: Amendments to cl. 8 and cl. 14"},{zh:"卖方律师 → Ken So",en:"Vendor's solicitor → Ken So"},"1",{zh:"合同磋商",en:"Contract negotiation"},"04/09 11:05"],
+ [{zh:"委托书与收费协议",en:"Retainer and costs agreement"},{zh:"Ken So → Sarah Chen",en:"Ken So → Sarah Chen"},"2",{zh:"收案与身份核验",en:"Initial instructions & VOI"},"26/08 09:48"]
+];
+const LOGD=[
+ ["2026-08-26 09:48","Ken So",{zh:"创建案件 260412，业务类型：住宅购买",en:"Created matter 260412, type: Residential purchase"}],
+ ["2026-08-28 10:12","Carrie Shen",{zh:"完成身份核验，方式：InfoTrack 电子核验（ARNECC Cat 1）",en:"Completed identity verification via InfoTrack (ARNECC Cat 1)"}],
+ ["2026-08-28 10:31",{zh:"系统",en:"System"},{zh:"发起 Dow Jones 制裁与政治人物筛查",en:"Initiated Dow Jones sanctions and PEP screening"}],
+ ["2026-08-28 10:33",{zh:"系统",en:"System"},{zh:"筛查结果返回：无命中",en:"Screening returned: no match"}],
+ ["2026-08-28 14:05","Ken So",{zh:"复核筛查结果并确认无命中",en:"Reviewed screening result and confirmed no match"}],
+ ["2026-08-28 14:07","Ken So",{zh:"评定风险等级为「中」，理由：境外资金来源、首次委托",en:"Set risk rating to Medium — overseas source of funds, first instruction"}],
+ ["2026-09-02 16:44","Carrie Shen",{zh:"上传资金来源证明：境外汇款凭证及完税证明",en:"Uploaded source of funds evidence: remittance record and tax clearance"}],
+ ["2026-09-10 16:22",{zh:"系统",en:"System"},{zh:"案件阶段推进至 03 交换与冷静期",en:"Matter advanced to stage 03, Exchange with cooling-off"}]
+];
+const DISB=[
+ ["28/08/2026","InfoTrack",{zh:"产权查册 Title Search",en:"Title search"},"29.70",1,1],
+ ["28/08/2026","InfoTrack",{zh:"Dow Jones 个人风险筛查",en:"Dow Jones individual risk profile"},"18.50",1,0],
+ ["29/08/2026","InfoTrack",{zh:"规划证明 10.7",en:"Planning certificate 10.7"},"63.00",1,1],
+ ["02/09/2026","Sydney Water",{zh:"建筑图则证明",en:"Building plan certificate"},"46.00",0,0],
+ ["05/09/2026","NSW LRS",{zh:"业权登记查册",en:"Land registry search"},"16.90",0,0]
+];
+const AMLR=[
+ ["Sarah Chen","260412","med","ok","ok","28/08/2027"],
+ ["Wei-Min Li & Ya-Qin Zhou","260410","high","pend","pend","—"],
+ ["Harper & Vale Pty Ltd","260409","high","pend","ok","—"],
+ ["Michael Trent","260411","low","ok","ok","14/06/2027"],
+ ["Hai-Tao Wang","260408","med","ok","ok","02/07/2027"],
+ ["Eleanor Prosser","260407","low","ok","ok","30/05/2027"],
+ ["Ming-Yuan Zhang","260406","med","ok","ok","11/08/2027"]
+];
+const RISK={high:{zh:"高",en:"High",c:"c-c"},med:{zh:"中",en:"Medium",c:"c-w"},low:{zh:"低",en:"Low",c:"c-n"}};
+
+const DRAFT={
+zh:`主题　260412 | Apartment 1204, 88 Walker Street — 尚待提供文件
+
+Sarah 您好：
+
+就您购买 Apartment 1204, 88 Walker Street, North Sydney NSW 2060（产权引用 Lot 1204 SP 98214）一案，本所目前尚待收取以下两份文件：
+
+一、冷静期放弃函（s.66W 证书）
+　　须由您的持证转让师或执业律师于合同生效前出具并签署。
+
+二、贷款正式无条件批准函
+　　请向贷款机构索取正式批准函。附条件的预批函（Pre-approval）不为承按人或卖方接受。
+
+本案已于 2026 年 9 月 10 日交换合同，依《1919 年新南威尔士州产权转让法》第 66W 条，法定冷静期将于 2026 年 9 月 17 日下午 5 时届满。烦请于届满前提供上述文件，以免影响您的权益。
+
+如有疑问，欢迎随时与本所联系。
+
+顺颂时祺
+Titance Legal`,
+en:`Subject  260412 | Apartment 1204, 88 Walker Street — Outstanding documents
+
+Dear Sarah,
+
+In relation to your purchase of Apartment 1204, 88 Walker Street, North Sydney NSW 2060 (Lot 1204 SP 98214), the following two documents remain outstanding:
+
+1. Waiver of cooling-off rights (s.66W certificate)
+   To be issued and signed by your licensed conveyancer or solicitor before the contract becomes binding.
+
+2. Formal unconditional loan approval
+   Please obtain a formal approval letter from your lender. A conditional pre-approval will not be accepted by the incoming mortgagee or the vendor.
+
+Contracts were exchanged on 10 September 2026. Under s.66W of the Conveyancing Act 1919 (NSW), the statutory cooling-off period expires at 5:00pm on 17 September 2026. Please provide the above before that time.
+
+Please contact us if anything is unclear.
+
+Kind regards
+Titance Legal`};
+
+/* ============ render ============ */
+const $=s=>document.querySelector(s);
+const chip=(c,txt,dot)=>`<span class="c ${c}">${dot?"<i></i>":""}${txt}</span>`;
+
+function paint(){
+  document.querySelectorAll("[data-t]").forEach(e=>e.textContent=t(e.dataset.t));
+  document.documentElement.lang = LG==="zh"?"zh-CN":"en-AU";
+  $("#lz").setAttribute("aria-pressed",LG==="zh");$("#le").setAttribute("aria-pressed",LG==="en");
+  renderAll();
+}
+function renderAll(){
+  $("#tiles").innerHTML=TILES.map(x=>`<button class="tile ${x.k}" data-go="${x.go}">
+    <span class="th"><span class="caps">${L(x.h)}</span></span>
+    <span class="n">${x.n}</span><span class="l">${L(x.l)}</span>
+    <span class="f">${L(x.f)}</span></button>`).join("");
+
+  $("#attbody").innerHTML=ATT.map(([it,m,d,s,st],i)=>{
+    const cc={c:"c-c",w:"c-w",o:"c-ok"}[s];
+    return `<tr><td class="idx">${i+1}</td><td>${L(it)}</td><td class="n">${m}</td>
+      <td class="n"${s==="c"?' style="color:var(--crit)"':""}>${L(d)}</td>
+      <td>${chip(cc,L(st),true)}</td></tr>`;}).join("");
+
+  $("#mbody").innerHTML=MT.map(([no,cl,ty,ad,sg,gp,fe])=>
+   `<tr class="ck" data-m="${no}"><td class="n">${no}</td><td>${cl}</td>
+    <td>${chip("c-n",L(ty))}</td><td>${ad}</td><td>${L(sg)}</td>
+    <td>${gp?chip("c-c",(LG==="zh"?"缺 ":"Missing ")+gp,true):chip("c-ok",LG==="zh"?"齐备":"Complete",true)}</td>
+    <td class="n">${fe}</td></tr>`).join("");
+
+  $("#abody").innerHTML=AMLR.map(([c,m,r,v,s,d])=>{
+   const R=RISK[r];
+   return `<tr><td>${c}</td><td class="n">${m}</td><td>${chip(R.c,R[LG],true)}</td>
+    <td>${v==="ok"?chip("c-ok",t("v.done"),true):chip("c-w",LG==="zh"?"待办":"Outstanding",true)}</td>
+    <td>${s==="ok"?chip("c-ok",t("v.nomatch"),true):chip("c-w",LG==="zh"?"待办":"Outstanding",true)}</td>
+    <td class="n">${d}</td></tr>`;}).join("");
+
+  $("#stages").innerHTML=STG.map(([nm,st,sb],i)=>
+   `<div class="sti"${st?` data-s="${st}"`:""}><span class="sn">0${i+1}</span>
+    <span class="stt">${L(nm)}</span><span class="ss">${L(sb)}</span></div>`).join("");
+
+  $("#tabs").innerHTML=[["docs","tab.docs",chip("c-c",t("b.missing"),false)],
+    ["mail","tab.mail",chip("c-n","14")],["aml","tab.aml",chip("c-ok",t("b.ready"))],
+    ["disb","tab.disb",chip("c-w",t("b.unbilled"))]]
+   .map(([k,lb,bd],i)=>`<button data-tab="${k}" aria-selected="${i===curTab}">${t(lb)}${bd}</button>`).join("");
+  document.querySelectorAll("#tabs button").forEach((b,i)=>b.addEventListener("click",()=>{curTab=i;showTab(b.dataset.tab);}));
+
+  renderDocs(); renderMailTab(); renderAmlTab(); renderDisb(); renderQ();
+}
+function renderDocs(){
+  const rows=DOCS.map(([n,nm,list])=>
+   `<tr class="grp"><td colspan="6">${n} · ${L(nm)}</td></tr>`+
+   list.map(([f,cat,dt,sz,st,vs])=>{
+    if(st==="MISS") return `<tr class="miss"><td class="idx">!</td>
+      <td><b>${L(f)}</b><span>${L(vs)}</span></td><td style="color:var(--crit)">${L(cat)}</td>
+      <td class="n" style="color:var(--crit)">${t("reqby")}</td><td class="n">—</td>
+      <td>${chip("c-c",t("notrecv"))}</td></tr>`;
+    return `<tr><td class="idx"></td><td>${f}</td><td>${L(cat)}</td>
+      <td class="n">${dt}</td><td class="n">${sz}</td>
+      <td>${st==="ok"?chip("c-ok",L(vs),true):`<span style="color:var(--ink3);font-size:11.5px">${L(vs)}</span>`}</td></tr>`;
+   }).join("")).join("");
+  $('[data-p="docs"]').innerHTML=`
+   <div class="alert">
+     <div class="alh"><h3>${t("al.h")}</h3><span class="c c-c mo" style="margin-left:auto">${t("al.left")}</span></div>
+     <div class="alb">
+       <ol>
+        <li><span class="i">1</span><span><b>${t("al.i1")}</b><span>${t("al.i1s")}</span></span></li>
+        <li><span class="i">2</span><span><b>${t("al.i2")}</b><span>${t("al.i2s")}</span></span></li>
+       </ol>
+       <div class="alr"><button class="btn btn-p" id="gen">${t("al.draft")}</button>
+         <span class="law">${t("al.law")}</span></div>
+     </div>
+   </div>
+   <div id="draftbox"></div>
+   <div class="pnh" style="border-top:1px solid var(--line)"><h2>${t("led.h")}</h2>
+     <span class="r">${t("led.s")}</span></div>
+   <div class="tw"><table><thead><tr><th style="width:34px">#</th><th>${t("th.doc")}</th><th>${t("th.cat")}</th>
+     <th>${t("th.fdate")}</th><th>${t("th.size")}</th><th>${t("th.vstat")}</th></tr></thead>
+     <tbody>${rows}</tbody></table></div>
+   <div class="foot"><span>${LG==="zh"?"案卷总量":"Vault size"}: 11.52 MB</span>
+     <span>SHA-256 ${LG==="zh"?"已校验":"verified"}</span><span><b>${LG==="zh"?"不可篡改审计轨迹已启用":"Immutable audit trail active"}</b></span></div>`;
+  $("#gen").addEventListener("click",()=>{
+    $("#draftbox").innerHTML=`<div class="draft">
+      <div class="pnh"><h2>${t("al.draft")}</h2>
+        ${chip("c-n",LG==="zh"?"中英双语":"Bilingual")}${chip("c-w",LG==="zh"?"待经办人核校":"Awaiting review",true)}</div>
+      <pre>${L(DRAFT)}</pre>
+      <div class="bar"><span class="au">${t("mail.audit")}</span>
+        <button class="btn">${LG==="zh"?"重新生成":"Regenerate"}</button>
+        <button class="btn btn-p">${LG==="zh"?"在 Outlook 中打开":"Open in Outlook"}</button></div></div>`;
+  });
+}
+function renderMailTab(){
+  $('[data-p="mail"]').innerHTML=`<div class="tw"><table>
+   <thead><tr><th>${t("th.subj")}</th><th>${t("th.corr")}</th><th>${t("th.atts")}</th><th>${t("th.filedto")}</th><th>${t("th.when")}</th></tr></thead>
+   <tbody>${MAILT.map(([s,c,a,st,w])=>`<tr><td>${L(s)}</td><td>${L(c)}</td><td class="n">${a}</td><td>${L(st)}</td><td class="n">${w}</td></tr>`).join("")}</tbody>
+  </table></div>`;
+}
+function renderAmlTab(){
+  const K=[["k.risk",chip("c-w",t("v.med"),true),"e.risk"],["k.voi",chip("c-ok",t("v.done"),true),"e.voi"],
+   ["k.bo",`<span style="font-size:13px">${t("v.na")}</span>`,"e.bo"],["k.scr",chip("c-ok",t("v.nomatch"),true),"e.scr"],
+   ["k.sof",chip("c-ok",t("v.obt"),true),"e.sof"],["k.next",'<span class="m" style="font-size:13px">28/08/2027</span>',"e.next"]];
+  $('[data-p="aml"]').innerHTML=`
+   <dl class="kv">${K.map(([k,v,e])=>`<div><dt class="caps">${t(k)}</dt><dd>${v}</dd><span class="ex">${t(e)}</span></div>`).join("")}</dl>
+   <div class="pnh"><h2>${t("aml.log")}</h2><span class="r">${t("aml.logs")}</span>
+     <button class="btn" style="margin-left:8px">${t("aml.pack")}</button></div>
+   <div class="log">${LOGD.map(([ts,ac,ev])=>
+     `<div class="lg"><span class="ts">${ts}</span><span class="ac">${L(ac)}</span><span class="ev">${L(ev)}</span></div>`).join("")}</div>`;
+}
+function renderDisb(){
+  $('[data-p="disb"]').innerHTML=`<div class="pnh"><h2>${t("disb.h")}</h2><span class="r">${t("disb.s")}</span></div>
+   <div class="tw"><table><thead><tr><th>${t("th.date")}</th><th>${t("th.supp")}</th><th>${t("th.desc")}</th>
+     <th style="text-align:right">${t("th.amt")}</th><th>${t("th.onch")}</th><th>${t("th.inv")}</th></tr></thead>
+   <tbody>${DISB.map(([d,s,i,a,p,b])=>`<tr><td class="n">${d}</td><td>${s}</td><td>${L(i)}</td>
+     <td class="n" style="text-align:right">A$${a}</td>
+     <td>${p?chip("c-ok",LG==="zh"?"已转嫁":"On-charged",true):chip("c-c",LG==="zh"?"未转嫁":"Not on-charged",true)}</td>
+     <td>${b?chip("c-n",LG==="zh"?"已开票":"Invoiced"):chip("c-w",LG==="zh"?"待开票":"To invoice",true)}</td></tr>`).join("")}</tbody>
+   </table></div><div style="padding:10px 12px;border-top:1px solid var(--line)"><p class="note">${t("disb.n")}</p></div>`;
+}
+
+let curTab=0;
+function showTab(k){document.querySelectorAll(".pane").forEach(p=>p.hidden=p.dataset.p!==k);}
+
+/* triage */
+let sel=1;
+function renderQ(){
+  $("#qcnt").textContent=Q.length; $("#nb").textContent=Q.length;
+  const tl=$("#tiles").querySelector(".tile .n"); if(tl) tl.textContent=Q.length;
+  if(!Q.length){ $("#qlist").innerHTML=`<p class="qempty">${t("mail.empty")}</p>`;
+    $("#qdetail").innerHTML=`<p class="qempty">${t("mail.emptyd")}</p>`; return; }
+  if(!Q.some(x=>x.id===sel)) sel=Q[0].id;
+  $("#qlist").innerHTML=Q.map(m=>`<button class="qi" data-id="${m.id}" aria-selected="${m.id===sel}">
+    <span class="r1"><span class="fr">${m.from}</span><span class="tm">${m.tm}</span></span>
+    <span class="sj">${L(m.sj)}</span>
+    <span class="cs">${m.exact?chip("c-ok",t("mail.matched"),true):chip("c-w",t("mail.sugg")+" "+m.cf+"%",true)}
+    ${m.at.length?chip("c-n",m.at.length+" "+t("mail.att")):""}</span></button>`).join("");
+  $("#qlist").querySelectorAll(".qi").forEach(b=>b.addEventListener("click",()=>{sel=+b.dataset.id;renderQ();}));
+  renderD();
+}
+function renderD(){
+  const m=Q.find(x=>x.id===sel); if(!m) return;
+  const mt=MT.find(x=>x[0]===m.m);
+  $("#qdetail").innerHTML=`
+  <div class="qdh"><h2>${L(m.sj)}</h2>
+    <div class="meta"><span>${t("mail.from")}: ${m.from} &lt;${m.addr}&gt;</span><span>${t("mail.time")}: 13/09/2026 ${m.tm} AEST</span><span>DKIM: PASS</span></div></div>
+  <div class="qdb">
+    <div class="msg">${L(m.bd)}</div>
+    ${m.at.length?`<div class="atts">${m.at.map(([ic,fn,fs])=>
+      `<span class="att"><span class="ic">${ic}</span><span><span class="fn">${fn}</span><br><span class="fs">${fs}</span></span></span>`).join("")}
+      ${chip("c-ok",t("mail.avok"),true)}</div>`:""}
+    <div class="dest">
+      <div class="desth"><span class="caps">${t("mail.dest")}</span>
+        <span class="mt">${m.exact?"EXACT MATCH":"AI MATCH "+m.cf+"%"}</span></div>
+      <div class="destb">
+        <div class="lft"><span class="caps" style="color:var(--ink3)">${t("mail.ref")}</span>
+          <div class="no">${mt[0]}</div><div class="cl">${mt[1]}</div>
+          <div class="refs">${chip("c-n",L(mt[2]))}</div></div>
+        <div><span class="caps" style="color:var(--ink3)">${t("mail.prop")}</span>
+          <div style="font-size:13px;margin-top:3px">${mt[3]}</div>
+          <div class="refs">${(REF[m.m]||[]).map(r=>chip("c-n mo",r)).join("")}</div></div>
+      </div>
+      <div class="why">
+        <span><b>${t("mail.rat")}</b>${m.exact
+          ?(LG==="zh"?"主题中检出案件号 "+mt[0]+"，精确匹配，未使用推测":"Matter number "+mt[0]+" found in subject line — exact match, no inference used")
+          :(LG==="zh"?"依据发件人、往来记录与标的地址推荐 — 置信度 "+m.cf+"%":"Suggested from sender, correspondence history and property address — "+m.cf+"% confidence")}</span>
+        <span><b>${t("mail.fold")}</b>${L(FOLD[m.m]||{zh:"—",en:"—"})}</span>
+      </div>
+    </div>
+  </div>
+  <div class="bar"><span class="au">${t("mail.audit")}</span>
+    <button class="btn">${t("mail.skip")}</button>
+    <button class="btn">${t("mail.chg")} <kbd>⌘K</kbd></button>
+    <button class="btn btn-p" id="ok">${t("mail.file")}${m.at.length?" ("+m.at.length+")":""} <kbd>⏎</kbd></button></div>`;
+  $("#ok").addEventListener("click",()=>{
+    Q=Q.filter(x=>x.id!==m.id); renderQ();
+    toast(t("mail.filed")+" "+mt[0]+" · "+mt[1]);
+  });
+}
+let tt;
+function toast(s){document.querySelector(".toast")?.remove();
+  const n=document.createElement("div");n.className="toast";n.textContent="✓ "+s;
+  document.body.appendChild(n);clearTimeout(tt);tt=setTimeout(()=>n.remove(),2600);}
+
+/* nav */
+const VT={today:"today",mail:"mail",matters:"matters",matter:"matter",aml:"aml"};
+function go(v){
+  document.querySelectorAll(".view").forEach(s=>s.hidden=s.id!=="v-"+v);
+  document.querySelectorAll(".nav button").forEach(b=>b.setAttribute("aria-current",b.dataset.go===v?"true":"false"));
+  window.scrollTo(0,0);
+}
+document.addEventListener("click",e=>{
+  const g=e.target.closest("[data-go]"); if(g){go(g.dataset.go);return;}
+  const r=e.target.closest("tr.ck"); if(r){go("matter");}
+});
+$("#back").addEventListener("click",()=>go("matters"));
+$("#lz").addEventListener("click",()=>{LG="zh";paint();});
+$("#le").addEventListener("click",()=>{LG="en";paint();});
+paint(); showTab("docs");
+</script>
